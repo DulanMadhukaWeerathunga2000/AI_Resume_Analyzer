@@ -1,56 +1,106 @@
+* {
+    box-sizing: border-box;
+}
+
+
 body {
-
-    font-family: Arial, sans-serif;
-
-    background: #f4f6f8;
 
     margin: 0;
 
-    padding: 40px;
+    font-family: Arial, sans-serif;
+
+    background: #f1f5f9;
+
+    color: #1e293b;
 
 }
 
 
-.container {
+nav {
 
-    width: 700px;
+    background: #0f172a;
 
-    max-width: 90%;
+    color: white;
 
-    margin: auto;
+    padding: 18px 8%;
 
-    background: white;
+    display: flex;
 
-    padding: 30px;
+    justify-content: space-between;
 
-    border-radius: 10px;
-
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    align-items: center;
 
 }
 
 
-h1 {
+.logo {
+
+    font-size: 22px;
+
+    font-weight: bold;
+
+}
+
+
+nav a {
+
+    color: white;
+
+    text-decoration: none;
+
+    margin-left: 25px;
+
+}
+
+
+.hero {
 
     text-align: center;
+
+    padding: 60px 20px 30px;
+
+}
+
+
+.hero h1 {
+
+    font-size: 42px;
 
     margin-bottom: 10px;
 
 }
 
 
-p {
+.hero p {
 
-    text-align: center;
+    color: #64748b;
 
-    color: #666;
+    font-size: 18px;
 
 }
 
 
-form {
+.card,
+.container {
 
-    margin-top: 30px;
+    width: 900px;
+
+    max-width: 92%;
+
+    margin: 30px auto;
+
+}
+
+
+.card {
+
+    background: white;
+
+    padding: 35px;
+
+    border-radius: 12px;
+
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
 
 }
 
@@ -59,9 +109,7 @@ label {
 
     display: block;
 
-    margin-top: 20px;
-
-    margin-bottom: 8px;
+    margin: 20px 0 8px;
 
     font-weight: bold;
 
@@ -72,6 +120,8 @@ input[type="file"] {
 
     width: 100%;
 
+    padding: 10px;
+
 }
 
 
@@ -79,13 +129,37 @@ textarea {
 
     width: 100%;
 
-    padding: 10px;
+    padding: 15px;
 
-    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
 
-    border: 1px solid #ccc;
+    border-radius: 8px;
 
-    border-radius: 5px;
+    resize: vertical;
+
+}
+
+
+button,
+.button {
+
+    display: inline-block;
+
+    margin-top: 20px;
+
+    padding: 12px 20px;
+
+    background: #2563eb;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 7px;
+
+    text-decoration: none;
+
+    cursor: pointer;
 
 }
 
@@ -94,65 +168,117 @@ button {
 
     width: 100%;
 
-    margin-top: 25px;
-
-    padding: 12px;
-
-    border: none;
-
-    border-radius: 5px;
-
-    background: #2563eb;
-
-    color: white;
-
     font-size: 16px;
-
-    cursor: pointer;
 
 }
 
 
-button:hover {
+.score-card {
 
-    background: #1d4ed8;
+    background: white;
+
+    text-align: center;
+
+    padding: 30px;
+
+    border-radius: 12px;
+
+    margin: 25px 0;
 
 }
 
 
 .score {
 
-    text-align: center;
-
-    margin: 30px 0;
-
-}
-
-
-.score-number {
-
-    font-size: 50px;
+    font-size: 60px;
 
     font-weight: bold;
 
 }
 
 
-.section {
+.grid {
 
-    margin-top: 25px;
+    display: grid;
 
-    padding: 20px;
+    grid-template-columns: 1fr 1fr;
 
-    background: #f8fafc;
-
-    border-radius: 8px;
+    gap: 20px;
 
 }
 
 
-li {
+.result-card {
 
-    margin: 8px 0;
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 12px;
+
+    margin-bottom: 20px;
+
+}
+
+
+.result-card li {
+
+    margin: 10px 0;
+
+}
+
+
+.actions {
+
+    text-align: center;
+
+}
+
+
+table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    background: white;
+
+}
+
+
+th,
+td {
+
+    padding: 15px;
+
+    border-bottom: 1px solid #ddd;
+
+    text-align: left;
+
+}
+
+
+th {
+
+    background: #0f172a;
+
+    color: white;
+
+}
+
+
+@media (max-width: 700px) {
+
+    .grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    nav {
+
+        padding: 15px;
+
+    }
 
 }

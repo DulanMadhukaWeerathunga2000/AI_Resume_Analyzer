@@ -10,34 +10,74 @@
 
 </head>
 
+
 <body>
 
-    <div class="container">
 
-        <h1>AI Resume Analyzer</h1>
+    <nav>
+
+        <div class="logo">
+            AI Resume Analyzer
+        </div>
+
+        <div>
+
+            <a href="/">
+                Home
+            </a>
+
+            <a href="/history">
+                History
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <div class="hero">
+
+        <h1>
+            AI Resume Analyzer
+        </h1>
 
         <p>
             Analyze your resume against a job description
+            and discover your skill match.
         </p>
+
+    </div>
+
+
+    <div class="card">
 
         <form action="/analyze" method="POST" enctype="multipart/form-data">
 
-            <label>Upload Resume PDF</label>
+            <label>
+                Upload Resume
+            </label>
 
             <input type="file" name="resume" accept=".pdf" required>
 
-            <label>Job Description</label>
+
+            <label>
+                Job Description
+            </label>
 
             <textarea name="job_description" rows="12" placeholder="Paste the job description here..."
                 required></textarea>
 
+
             <button type="submit">
+
                 Analyze Resume
+
             </button>
 
         </form>
 
     </div>
+
 
 </body>
 

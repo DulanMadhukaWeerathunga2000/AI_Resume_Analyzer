@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Analysis History</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+
+    <nav>
+
+        <div class="logo">
+            AI Resume Analyzer
+        </div>
+
+        <div>
+
+            <a href="/">
+                Home
+            </a>
+
+            <a href="/history">
+                History
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <div class="container">
+
+        <h1>
+            Analysis History
+        </h1>
+
+
+        {% if analyses %}
+
+
+        <table>
+
+            <tr>
+
+                <th>
+                    Resume
+                </th>
+
+                <th>
+                    Score
+                </th>
+
+                <th>
+                    Date
+                </th>
+
+            </tr>
+
+
+            {% for analysis in analyses %}
+
+            <tr>
+
+                <td>
+                    {{ analysis[1] }}
+                </td>
+
+                <td>
+                    {{ analysis[2] }}%
+                </td>
+
+                <td>
+                    {{ analysis[6] }}
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+
+        </table>
+
+
+        {% else %}
+
+        <p>
+            No analysis history available.
+        </p>
+
+        {% endif %}
+
+
+    </div>
+
+
+</body>
+
+</html>
