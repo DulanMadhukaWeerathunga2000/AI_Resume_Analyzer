@@ -26,6 +26,7 @@ REPORT_FOLDER = "reports"
 def generate_report(
     filename,
     score,
+    ats_score,
     matched,
     missing,
     suggestions,
@@ -51,7 +52,6 @@ def generate_report(
         report_filename
     )
 
-
     document = SimpleDocTemplate(
         report_path,
         pagesize=A4,
@@ -61,9 +61,7 @@ def generate_report(
         bottomMargin=40
     )
 
-
     styles = getSampleStyleSheet()
-
 
     title_style = ParagraphStyle(
         "TitleStyle",
@@ -72,7 +70,6 @@ def generate_report(
         fontSize=22
     )
 
-
     score_style = ParagraphStyle(
         "ScoreStyle",
         parent=styles["Heading1"],
@@ -80,9 +77,7 @@ def generate_report(
         fontSize=32
     )
 
-
     story = []
-
 
     story.append(
         Paragraph(
@@ -91,11 +86,9 @@ def generate_report(
         )
     )
 
-
     story.append(
         Spacer(1, 10)
     )
-
 
     story.append(
         Paragraph(
@@ -104,7 +97,6 @@ def generate_report(
         )
     )
 
-
     story.append(
         Paragraph(
             f"Resume: {filename}",
@@ -112,11 +104,9 @@ def generate_report(
         )
     )
 
-
     story.append(
         Spacer(1, 20)
     )
-
 
     story.append(
         Paragraph(
@@ -125,29 +115,36 @@ def generate_report(
         )
     )
 
-
     story.append(
         Paragraph(
-            "Overall Job Match Score",
+            "Job Match Score",
             styles["Heading2"]
         )
     )
 
+    story.append(
+        Spacer(1, 10)
+    )
+
+    story.append(
+        Paragraph(
+            f"ATS Score: {ats_score}%",
+            styles["Heading2"]
+        )
+    )
 
     story.append(
         Spacer(1, 20)
     )
 
-
     story.append(
         Paragraph(
-            "Category Analysis",
+            "Skill Category Analysis",
             styles["Heading2"]
         )
     )
 
-
-    category_data = [
+    data = [
         ["Category", "Score"],
         [
             "Technical Skills",
@@ -159,14 +156,12 @@ def generate_report(
         ]
     ]
 
-
-    category_table = Table(
-        category_data,
+    table = Table(
+        data,
         colWidths=[250, 150]
     )
 
-
-    category_table.setStyle(
+    table.setStyle(
         TableStyle([
             (
                 "BACKGROUND",
@@ -174,7 +169,6 @@ def generate_report(
                 (-1, 0),
                 colors.lightgrey
             ),
-
             (
                 "GRID",
                 (0, 0),
@@ -182,14 +176,12 @@ def generate_report(
                 1,
                 colors.grey
             ),
-
             (
                 "ALIGN",
                 (1, 0),
                 (-1, -1),
                 "CENTER"
             ),
-
             (
                 "PADDING",
                 (0, 0),
@@ -199,16 +191,11 @@ def generate_report(
         ])
     )
 
-
-    story.append(
-        category_table
-    )
-
+    story.append(table)
 
     story.append(
         Spacer(1, 20)
     )
-
 
     story.append(
         Paragraph(
@@ -216,7 +203,6 @@ def generate_report(
             styles["Heading2"]
         )
     )
-
 
     if matched:
 
@@ -238,11 +224,9 @@ def generate_report(
             )
         )
 
-
     story.append(
         Spacer(1, 15)
     )
-
 
     story.append(
         Paragraph(
@@ -250,7 +234,6 @@ def generate_report(
             styles["Heading2"]
         )
     )
-
 
     if missing:
 
@@ -272,11 +255,9 @@ def generate_report(
             )
         )
 
-
     story.append(
         Spacer(1, 15)
     )
-
 
     story.append(
         Paragraph(
@@ -284,7 +265,6 @@ def generate_report(
             styles["Heading2"]
         )
     )
-
 
     for suggestion in suggestions:
 
@@ -295,8 +275,6 @@ def generate_report(
             )
         )
 
-
     document.build(story)
-
 
     return report_filename

@@ -2,13 +2,11 @@ from PyPDF2 import PdfReader
 
 
 def extract_text_from_pdf(file_path):
-
     text = ""
 
     reader = PdfReader(file_path)
 
     for page in reader.pages:
-
         page_text = page.extract_text()
 
         if page_text:
@@ -18,7 +16,6 @@ def extract_text_from_pdf(file_path):
 
 
 def detect_sections(text):
-
     text = text.lower()
 
     sections = {
@@ -31,7 +28,6 @@ def detect_sections(text):
     }
 
     keywords = {
-
         "summary": [
             "summary",
             "professional summary",
@@ -74,7 +70,6 @@ def detect_sections(text):
         for word in words:
 
             if word in text:
-
                 sections[section] = True
                 break
 

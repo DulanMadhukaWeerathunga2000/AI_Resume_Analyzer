@@ -14,63 +14,81 @@ Analysis Result
 
     <div class="page-header">
 
-        <div>
+        <div class="small-label">
+            ANALYSIS RESULT
+        </div>
+
+        <h1>
+            Resume Analysis
+        </h1>
+
+        <p>
+            {{ filename }}
+        </p>
+
+    </div>
+
+
+    <div class="score-grid">
+
+
+        <div class="score-card">
+
+
+            <div class="score-circle">
+
+                <span>
+                    {{ score }}%
+                </span>
+
+            </div>
+
+
+            <div class="score-content">
+
+                <div class="small-label">
+                    JOB MATCH
+                </div>
+
+                <h2>
+                    {{ status }}
+                </h2>
+
+                <p>
+                    {{ status_message }}
+                </p>
+
+
+                <div class="progress">
+
+                    <div class="progress-bar" style="width: {{ score }}%;"></div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="ats-card">
 
             <div class="small-label">
-                ANALYSIS RESULT
+                ATS SCORE
             </div>
 
-            <h1>
-                Resume Analysis
-            </h1>
-
-            <p>
-                {{ filename }}
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <!-- MAIN SCORE -->
-
-    <div class="score-card">
-
-
-        <div class="score-circle">
-
-            <span>
-                {{ score }}%
-            </span>
-
-        </div>
-
-
-        <div class="score-content">
-
-            <h2>
-                {{ status }}
-            </h2>
-
-            <p>
-                {{ status_message }}
-            </p>
-
-
-            <div class="progress">
-
-                <div class="progress-bar" style="width: {{ score }}%;"></div>
-
+            <div class="ats-score">
+                {{ ats_score }}%
             </div>
+
+            <p>
+                Resume keyword and structure score.
+            </p>
 
         </div>
 
 
     </div>
-
-
-    <!-- CATEGORY SCORES -->
 
 
     <div class="category-grid">
@@ -93,7 +111,7 @@ Analysis Result
 
             <div class="progress">
 
-                <div class="progress-bar technical-bar" style="
+                <div class="progress-bar" style="
                     width:
                     {{ category_scores['technical'] }}%;
                     "></div>
@@ -120,7 +138,7 @@ Analysis Result
 
             <div class="progress">
 
-                <div class="progress-bar soft-bar" style="
+                <div class="progress-bar purple" style="
                     width:
                     {{ category_scores['soft'] }}%;
                     "></div>
@@ -133,109 +151,84 @@ Analysis Result
     </div>
 
 
-    <!-- SKILL ANALYSIS -->
-
-
     <div class="result-card">
 
 
-        <div class="card-title">
-
-            <div>
-
-                <span class="card-icon">
-                    📊
-                </span>
-
-                <h2>
-                    Skill Analysis
-                </h2>
-
-            </div>
-
-        </div>
+        <h2>
+            📊 Skill Analysis
+        </h2>
 
 
         {% if skill_scores %}
 
 
-        <div class="skill-analysis">
+        {% for item in skill_scores %}
 
 
-            {% for item in skill_scores %}
+        <div class="skill-row">
 
 
-            <div class="skill-row">
+            <div class="skill-name">
+
+                {% if item["matched"] %}
+
+                <span class="check">
+                    ✓
+                </span>
+
+                {% else %}
+
+                <span class="cross">
+                    !
+                </span>
+
+                {% endif %}
 
 
-                <div class="skill-name">
-
-                    {% if item["matched"] %}
-
-                    <span class="check">
-                        ✓
-                    </span>
-
-                    {% else %}
-
-                    <span class="cross">
-                        !
-                    </span>
-
-                    {% endif %}
-
-
-                    {{ item["skill"] }}
-
-                </div>
-
-
-                <div class="skill-progress">
-
-                    <div class="mini-progress">
-
-                        <div class="
-                            mini-progress-bar
-                            {% if item['matched'] %}
-                            matched-bar
-                            {% else %}
-                            missing-bar
-                            {% endif %}
-                            " style="
-                            width:
-                            {{ item['score'] }}%;
-                            "></div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="skill-score">
-
-                    {{ item["score"] }}%
-
-                </div>
-
+                {{ item["skill"] }}
 
             </div>
 
 
-            {% endfor %}
+            <div class="skill-progress">
+
+                <div class="mini-progress">
+
+                    <div class="
+                        mini-progress-bar
+                        {% if item['matched'] %}
+                        matched-bar
+                        {% else %}
+                        missing-bar
+                        {% endif %}
+                        " style="
+                        width:
+                        {{ item['score'] }}%;
+                        "></div>
+
+                </div>
+
+            </div>
+
+
+            <div class="skill-score">
+                {{ item["score"] }}%
+            </div>
 
 
         </div>
+
+
+        {% endfor %}
 
 
         {% else %}
 
 
-        <div class="empty-message">
-
-            No specific skills were detected
+        <p class="muted">
+            No recognized skills were detected
             in the job description.
-
-        </div>
+        </p>
 
 
         {% endif %}
@@ -244,92 +237,67 @@ Analysis Result
     </div>
 
 
-    <!-- MATCHED / MISSING -->
-
-
     <div class="two-column">
 
 
         <div class="result-card">
 
-
             <h2>
                 <span class="success-icon">
                     ✓
                 </span>
-
                 Matched Skills
             </h2>
 
 
             <div class="skill-list">
 
-
                 {% for skill in matched %}
 
-
                 <span class="skill matched">
-
                     ✓ {{ skill }}
-
                 </span>
 
-
                 {% else %}
-
 
                 <p>
                     No matching skills found.
                 </p>
 
-
                 {% endfor %}
 
-
             </div>
-
 
         </div>
 
 
         <div class="result-card">
 
-
             <h2>
                 <span class="warning-icon">
                     !
                 </span>
-
                 Missing Skills
             </h2>
 
 
             <div class="skill-list">
 
-
                 {% for skill in missing %}
 
-
                 <span class="skill missing">
-
                     ! {{ skill }}
-
                 </span>
 
-
                 {% else %}
-
 
                 <p>
                     No major missing skills detected.
                 </p>
 
-
                 {% endfor %}
 
-
             </div>
-
 
         </div>
 
@@ -337,11 +305,7 @@ Analysis Result
     </div>
 
 
-    <!-- RESUME SECTIONS -->
-
-
     <div class="result-card">
-
 
         <h2>
             Resume Sections
@@ -362,7 +326,6 @@ Analysis Result
                 section-missing
                 {% endif %}
                 ">
-
 
                 <span>
 
@@ -392,10 +355,7 @@ Analysis Result
     </div>
 
 
-    <!-- SUGGESTIONS -->
-
-
-    <div class="result-card suggestions-card">
+    <div class="result-card">
 
 
         <h2>
@@ -403,35 +363,26 @@ Analysis Result
         </h2>
 
 
-        <div class="suggestions">
+        {% for suggestion in suggestions %}
 
 
-            {% for suggestion in suggestions %}
+        <div class="suggestion">
 
+            <span>
+                →
+            </span>
 
-            <div class="suggestion">
-
-                <span>
-                    →
-                </span>
-
-                <p>
-                    {{ suggestion }}
-                </p>
-
-            </div>
-
-
-            {% endfor %}
-
+            <p>
+                {{ suggestion }}
+            </p>
 
         </div>
 
 
+        {% endfor %}
+
+
     </div>
-
-
-    <!-- ACTIONS -->
 
 
     <div class="actions">

@@ -23,7 +23,7 @@ Analysis History
         </h1>
 
         <p>
-            View your previous resume analyses.
+            View previous resume analyses.
         </p>
 
     </div>
@@ -37,9 +37,7 @@ Analysis History
 
         <div class="table-container">
 
-
             <table>
-
 
                 <thead>
 
@@ -78,25 +76,19 @@ Analysis History
                             {{ analysis["filename"] }}
                         </td>
 
-
                         <td>
 
                             <span class="table-score">
-
                                 {{ analysis["score"] }}%
-
                             </span>
 
                         </td>
-
 
                         <td>
                             {{ analysis["created_at"] }}
                         </td>
 
-
                         <td>
-
 
                             <a href="/download/{{ analysis['filename'].rsplit('.', 1)[0] }}_analysis_report.pdf"
                                 class="small-button">
@@ -106,23 +98,17 @@ Analysis History
 
                             <form action="/delete/{{ analysis['id'] }}" method="POST" class="inline-form">
 
-
                                 <button type="submit" class="delete-button" onclick="
                                     return confirm(
                                     'Delete this analysis?'
                                     )
                                     ">
-
                                     Delete
-
                                 </button>
-
 
                             </form>
 
-
                         </td>
-
 
                     </tr>
 
@@ -132,9 +118,7 @@ Analysis History
 
                 </tbody>
 
-
             </table>
-
 
         </div>
 

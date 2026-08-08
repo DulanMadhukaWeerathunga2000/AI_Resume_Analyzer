@@ -1,12 +1,16 @@
 import sqlite3
 import json
 
+
 DATABASE = "resume_analyzer.db"
 
 
 def get_connection():
+
     connection = sqlite3.connect(DATABASE)
+
     connection.row_factory = sqlite3.Row
+
     return connection
 
 
@@ -16,17 +20,27 @@ def create_database():
 
     connection.execute("""
         CREATE TABLE IF NOT EXISTS analyses (
+
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+
             filename TEXT NOT NULL,
-            score INTEGER NOT NULL DEFAULT 0,
-            matched_skills TEXT DEFAULT '[]',
-            missing_skills TEXT DEFAULT '[]',
-            suggestions TEXT DEFAULT '[]',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+            score INTEGER NOT NULL,
+
+            matched_skills TEXT,
+
+            missing_skills TEXT,
+
+            suggestions TEXT,
+
+            created_at TIMESTAMP
+                DEFAULT CURRENT_TIMESTAMP
+
         )
     """)
 
     connection.commit()
+
     connection.close()
 
 
@@ -49,6 +63,7 @@ def save_analysis(
             missing_skills,
             suggestions
         )
+
         VALUES (?, ?, ?, ?, ?)
     """, (
         filename,
@@ -59,6 +74,7 @@ def save_analysis(
     ))
 
     connection.commit()
+
     connection.close()
 
 
@@ -82,9 +98,13 @@ def delete_analysis(analysis_id):
     connection = get_connection()
 
     connection.execute(
-        "DELETE FROM analyses WHERE id = ?",
+        """
+        DELETE FROM analyses
+        WHERE id = ?
+        """,
         (analysis_id,)
     )
 
     connection.commit()
+
     connection.close()

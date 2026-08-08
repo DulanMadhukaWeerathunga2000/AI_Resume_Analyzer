@@ -9,7 +9,6 @@ from flask import (
     send_file
 )
 
-
 from database import (
     create_database,
     save_analysis,
@@ -17,21 +16,19 @@ from database import (
     delete_analysis
 )
 
-
 from resume_parser import (
     extract_text_from_pdf,
     detect_sections
 )
-
 
 from analyzer import (
     analyze_skills,
     get_score_status,
     generate_suggestions,
     get_skill_scores,
-    get_category_scores
+    get_category_scores,
+    calculate_ats_score
 )
-
 
 from report import generate_report
 
@@ -54,9 +51,7 @@ os.makedirs(
 )
 
 
-app.config[
-    "UPLOAD_FOLDER"
-] = UPLOAD_FOLDER
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
 create_database()
@@ -80,7 +75,6 @@ def analyze():
         "resume"
     )
 
-
     job_description = request.form.get(
         "job_description",
         ""
@@ -94,14 +88,14 @@ def analyze():
 
     if not resume.filename:
 
-        return "Please select a file."
+        return "Please select a resume."
 
 
     if not resume.filename.lower().endswith(
         ".pdf"
     ):
 
-        return "Only PDF files are supported."
+        return "Only PDF resumes are supported."
 
 
     if not job_description:
@@ -111,16 +105,13 @@ def analyze():
 
     filename = resume.filename
 
-
     file_path = os.path.join(
         UPLOAD_FOLDER,
         filename
     )
 
 
-    resume.save(
-        file_path
-    )
+    resume.save(file_path)
 
 
     try:
@@ -132,7 +123,7 @@ def analyze():
     except Exception as error:
 
         return (
-            "Error reading PDF: "
+            "Could not read PDF: "
             + str(error)
         )
 
@@ -140,13 +131,25 @@ def analyze():
     if not resume_text.strip():
 
         return (
-            "Could not extract text from this PDF."
+            "No readable text found in the PDF."
         )
 
 
-    score, matched, missing = analyze_skills(
+    sections = detect_sections(
+        resume_text
+    )
+
+
+    match_score, matched, missing = analyze_skills(
         resume_text,
         job_description
+    )
+
+
+    ats_score = calculate_ats_score(
+        resume_text,
+        job_description,
+        sections
     )
 
 
@@ -163,17 +166,12 @@ def analyze():
 
 
     status, status_message = get_score_status(
-        score
-    )
-
-
-    sections = detect_sections(
-        resume_text
+        match_score
     )
 
 
     suggestions = generate_suggestions(
-        score,
+        match_score,
         missing,
         sections
     )
@@ -181,7 +179,7 @@ def analyze():
 
     save_analysis(
         filename,
-        score,
+        match_score,
         matched,
         missing,
         suggestions
@@ -190,7 +188,8 @@ def analyze():
 
     report_filename = generate_report(
         filename,
-        score,
+        match_score,
+        ats_score,
         matched,
         missing,
         suggestions,
@@ -204,7 +203,9 @@ def analyze():
 
         filename=filename,
 
-        score=score,
+        score=match_score,
+
+        ats_score=ats_score,
 
         status=status,
 
@@ -231,22 +232,17 @@ def dashboard():
 
     analyses = get_all_analyses()
 
-
     scores = [
         row["score"]
         for row in analyses
     ]
 
-
     total = len(analyses)
-
 
     if scores:
 
         average = round(
-            sum(scores)
-            /
-            len(scores)
+            sum(scores) / len(scores)
         )
 
         highest = max(scores)
@@ -256,27 +252,17 @@ def dashboard():
     else:
 
         average = 0
-
         highest = 0
-
         lowest = 0
-
 
     recent = analyses[:5]
 
-
     return render_template(
-
         "dashboard.html",
-
         total_analyses=total,
-
         average_score=average,
-
         highest_score=highest,
-
         lowest_score=lowest,
-
         recent_analyses=recent
     )
 
@@ -285,7 +271,6 @@ def dashboard():
 def history():
 
     analyses = get_all_analyses()
-
 
     return render_template(
         "history.html",
@@ -303,10 +288,7 @@ def download(filename):
         filename
     )
 
-
-    if not os.path.exists(
-        file_path
-    ):
+    if not os.path.exists(file_path):
 
         return "Report not found."
 
@@ -326,7 +308,6 @@ def delete(analysis_id):
     delete_analysis(
         analysis_id
     )
-
 
     return redirect(
         url_for("history")
