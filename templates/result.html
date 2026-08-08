@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+
 {% block title %}
 Analysis Result
 {% endblock %}
@@ -7,108 +8,340 @@ Analysis Result
 
 {% block content %}
 
+
 <div class="container">
+
 
     <div class="page-header">
 
-        <h1>
-            Resume Analysis
-        </h1>
+        <div>
 
-        <p>
-            {{ filename }}
-        </p>
+            <div class="small-label">
+                ANALYSIS RESULT
+            </div>
+
+            <h1>
+                Resume Analysis
+            </h1>
+
+            <p>
+                {{ filename }}
+            </p>
+
+        </div>
 
     </div>
 
+
+    <!-- MAIN SCORE -->
 
     <div class="score-card">
 
-        <h2>
-            Resume Match Score
-        </h2>
 
-        <div class="score-number">
-            {{ score }}%
-        </div>
+        <div class="score-circle">
 
-        <div class="progress">
-
-            <div class="progress-bar" style="width: {{ score }}%;"></div>
+            <span>
+                {{ score }}%
+            </span>
 
         </div>
 
-        <h3>
-            {{ status }}
-        </h3>
 
-        <p>
-            {{ status_message }}
-        </p>
+        <div class="score-content">
+
+            <h2>
+                {{ status }}
+            </h2>
+
+            <p>
+                {{ status_message }}
+            </p>
+
+
+            <div class="progress">
+
+                <div class="progress-bar" style="width: {{ score }}%;"></div>
+
+            </div>
+
+        </div>
+
 
     </div>
 
 
-    <div class="grid">
+    <!-- CATEGORY SCORES -->
+
+
+    <div class="category-grid">
+
+
+        <div class="category-card">
+
+            <div class="category-header">
+
+                <span>
+                    💻 Technical Skills
+                </span>
+
+                <strong>
+                    {{ category_scores["technical"] }}%
+                </strong>
+
+            </div>
+
+
+            <div class="progress">
+
+                <div class="progress-bar technical-bar" style="
+                    width:
+                    {{ category_scores['technical'] }}%;
+                    "></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="category-card">
+
+            <div class="category-header">
+
+                <span>
+                    🤝 Soft Skills
+                </span>
+
+                <strong>
+                    {{ category_scores["soft"] }}%
+                </strong>
+
+            </div>
+
+
+            <div class="progress">
+
+                <div class="progress-bar soft-bar" style="
+                    width:
+                    {{ category_scores['soft'] }}%;
+                    "></div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- SKILL ANALYSIS -->
+
+
+    <div class="result-card">
+
+
+        <div class="card-title">
+
+            <div>
+
+                <span class="card-icon">
+                    📊
+                </span>
+
+                <h2>
+                    Skill Analysis
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        {% if skill_scores %}
+
+
+        <div class="skill-analysis">
+
+
+            {% for item in skill_scores %}
+
+
+            <div class="skill-row">
+
+
+                <div class="skill-name">
+
+                    {% if item["matched"] %}
+
+                    <span class="check">
+                        ✓
+                    </span>
+
+                    {% else %}
+
+                    <span class="cross">
+                        !
+                    </span>
+
+                    {% endif %}
+
+
+                    {{ item["skill"] }}
+
+                </div>
+
+
+                <div class="skill-progress">
+
+                    <div class="mini-progress">
+
+                        <div class="
+                            mini-progress-bar
+                            {% if item['matched'] %}
+                            matched-bar
+                            {% else %}
+                            missing-bar
+                            {% endif %}
+                            " style="
+                            width:
+                            {{ item['score'] }}%;
+                            "></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="skill-score">
+
+                    {{ item["score"] }}%
+
+                </div>
+
+
+            </div>
+
+
+            {% endfor %}
+
+
+        </div>
+
+
+        {% else %}
+
+
+        <div class="empty-message">
+
+            No specific skills were detected
+            in the job description.
+
+        </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+    <!-- MATCHED / MISSING -->
+
+
+    <div class="two-column">
 
 
         <div class="result-card">
 
+
             <h2>
-                ✓ Matched Skills
+                <span class="success-icon">
+                    ✓
+                </span>
+
+                Matched Skills
             </h2>
+
 
             <div class="skill-list">
 
+
                 {% for skill in matched %}
 
+
                 <span class="skill matched">
+
                     ✓ {{ skill }}
+
                 </span>
 
+
                 {% else %}
+
 
                 <p>
                     No matching skills found.
                 </p>
 
+
                 {% endfor %}
 
+
             </div>
+
 
         </div>
 
 
         <div class="result-card">
 
+
             <h2>
-                ! Missing Skills
+                <span class="warning-icon">
+                    !
+                </span>
+
+                Missing Skills
             </h2>
+
 
             <div class="skill-list">
 
+
                 {% for skill in missing %}
 
+
                 <span class="skill missing">
+
                     ! {{ skill }}
+
                 </span>
+
 
                 {% else %}
 
+
                 <p>
-                    No major missing skills.
+                    No major missing skills detected.
                 </p>
+
 
                 {% endfor %}
 
+
             </div>
 
+
         </div>
+
 
     </div>
 
 
+    <!-- RESUME SECTIONS -->
+
+
     <div class="result-card">
+
 
         <h2>
             Resume Sections
@@ -117,7 +350,9 @@ Analysis Result
 
         <div class="section-grid">
 
+
             {% for section, exists in sections.items() %}
+
 
             <div class="
                 section-item
@@ -128,46 +363,79 @@ Analysis Result
                 {% endif %}
                 ">
 
-                {% if exists %}
-                ✓
-                {% else %}
-                !
-                {% endif %}
 
-                {{ section|replace("_", " ")|title }}
+                <span>
+
+                    {% if exists %}
+                    ✓
+                    {% else %}
+                    !
+                    {% endif %}
+
+                </span>
+
+
+                {{ section
+                |replace("_", " ")
+                |title }}
+
 
             </div>
 
+
             {% endfor %}
 
+
         </div>
+
 
     </div>
 
 
-    <div class="result-card">
+    <!-- SUGGESTIONS -->
+
+
+    <div class="result-card suggestions-card">
+
 
         <h2>
             💡 Improvement Suggestions
         </h2>
 
 
-        <ul>
+        <div class="suggestions">
+
 
             {% for suggestion in suggestions %}
 
-            <li>
-                {{ suggestion }}
-            </li>
+
+            <div class="suggestion">
+
+                <span>
+                    →
+                </span>
+
+                <p>
+                    {{ suggestion }}
+                </p>
+
+            </div>
+
 
             {% endfor %}
 
-        </ul>
+
+        </div>
+
 
     </div>
 
 
+    <!-- ACTIONS -->
+
+
     <div class="actions">
+
 
         <a href="/" class="button primary">
             Analyze Another
@@ -188,8 +456,11 @@ Analysis Result
             Download PDF Report
         </a>
 
+
     </div>
 
+
 </div>
+
 
 {% endblock %}

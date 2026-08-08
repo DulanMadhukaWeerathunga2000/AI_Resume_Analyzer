@@ -1,22 +1,29 @@
 {% extends "base.html" %}
 
+
 {% block title %}
-History
+Analysis History
 {% endblock %}
 
 
 {% block content %}
 
+
 <div class="dashboard-container">
 
+
     <div class="dashboard-header">
+
+        <div class="small-label">
+            RECORDS
+        </div>
 
         <h1>
             Analysis History
         </h1>
 
         <p>
-            Your previous resume analyses
+            View your previous resume analyses.
         </p>
 
     </div>
@@ -24,11 +31,15 @@ History
 
     <div class="dashboard-card">
 
+
         {% if analyses %}
+
 
         <div class="table-container">
 
+
             <table>
+
 
                 <thead>
 
@@ -57,7 +68,9 @@ History
 
                 <tbody>
 
+
                     {% for analysis in analyses %}
+
 
                     <tr>
 
@@ -65,19 +78,25 @@ History
                             {{ analysis["filename"] }}
                         </td>
 
+
                         <td>
 
-                            <strong>
+                            <span class="table-score">
+
                                 {{ analysis["score"] }}%
-                            </strong>
+
+                            </span>
 
                         </td>
+
 
                         <td>
                             {{ analysis["created_at"] }}
                         </td>
 
+
                         <td>
+
 
                             <a href="/download/{{ analysis['filename'].rsplit('.', 1)[0] }}_analysis_report.pdf"
                                 class="small-button">
@@ -85,28 +104,43 @@ History
                             </a>
 
 
-                            <form action="/delete/{{ analysis['id'] }}" method="POST" style="display:inline;">
+                            <form action="/delete/{{ analysis['id'] }}" method="POST" class="inline-form">
 
-                                <button type="submit" class="delete-button"
-                                    onclick="return confirm('Delete this analysis?')">
+
+                                <button type="submit" class="delete-button" onclick="
+                                    return confirm(
+                                    'Delete this analysis?'
+                                    )
+                                    ">
+
                                     Delete
+
                                 </button>
+
 
                             </form>
 
+
                         </td>
+
 
                     </tr>
 
+
                     {% endfor %}
+
 
                 </tbody>
 
+
             </table>
+
 
         </div>
 
+
         {% else %}
+
 
         <div class="empty-state">
 
@@ -128,10 +162,14 @@ History
 
         </div>
 
+
         {% endif %}
+
 
     </div>
 
+
 </div>
+
 
 {% endblock %}

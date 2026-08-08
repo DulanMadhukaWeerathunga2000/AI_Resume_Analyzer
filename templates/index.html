@@ -1,21 +1,31 @@
 {% extends "base.html" %}
 
+
 {% block title %}
-Home - AI Resume Analyzer
+AI Resume Analyzer
 {% endblock %}
 
 
 {% block content %}
 
+
 <section class="hero">
 
+    <div class="hero-badge">
+        AI POWERED RESUME ANALYSIS
+    </div>
+
+
     <h1>
-        AI Resume Analyzer
+        Analyze Your Resume
+        <br>
+        <span>Against Any Job</span>
     </h1>
 
+
     <p>
-        Analyze your resume against a job description
-        and identify your skill match.
+        Upload your resume, paste a job description,
+        and discover your skill match instantly.
     </p>
 
 </section>
@@ -23,28 +33,106 @@ Home - AI Resume Analyzer
 
 <div class="card">
 
+
     <form action="/analyze" method="POST" enctype="multipart/form-data">
 
-        <label>
-            Upload Resume PDF
-        </label>
 
-        <input type="file" name="resume" accept=".pdf" required>
+        <div class="form-group">
 
-
-        <label>
-            Job Description
-        </label>
-
-        <textarea name="job_description" rows="12" placeholder="Paste the job description here..." required></textarea>
+            <label>
+                Resume PDF
+            </label>
 
 
-        <button type="submit">
+            <input type="file" name="resume" accept=".pdf" required>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Job Description
+            </label>
+
+
+            <textarea name="job_description" rows="12" placeholder="Paste the job description here..."
+                required></textarea>
+
+        </div>
+
+
+        <button type="submit" class="analyze-button">
+
             Analyze Resume
+
         </button>
+
 
     </form>
 
+
 </div>
+
+
+<div class="feature-grid">
+
+
+    <div class="feature-card">
+
+        <div class="feature-icon">
+            🎯
+        </div>
+
+        <h3>
+            Match Score
+        </h3>
+
+        <p>
+            Calculate how closely your resume matches
+            the job requirements.
+        </p>
+
+    </div>
+
+
+    <div class="feature-card">
+
+        <div class="feature-icon">
+            📊
+        </div>
+
+        <h3>
+            Skill Analysis
+        </h3>
+
+        <p>
+            Identify matched and missing technical
+            and soft skills.
+        </p>
+
+    </div>
+
+
+    <div class="feature-card">
+
+        <div class="feature-icon">
+            💡
+        </div>
+
+        <h3>
+            Smart Suggestions
+        </h3>
+
+        <p>
+            Get useful recommendations to improve
+            your resume.
+        </p>
+
+    </div>
+
+
+</div>
+
 
 {% endblock %}

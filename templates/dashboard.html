@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+
 {% block title %}
 Dashboard
 {% endblock %}
@@ -7,16 +8,22 @@ Dashboard
 
 {% block content %}
 
+
 <div class="dashboard-container">
+
 
     <div class="dashboard-header">
 
+        <div class="small-label">
+            OVERVIEW
+        </div>
+
         <h1>
-            Dashboard
+            Resume Dashboard
         </h1>
 
         <p>
-            Resume analysis overview
+            Track your resume analysis performance.
         </p>
 
     </div>
@@ -108,20 +115,27 @@ Dashboard
 
         </div>
 
+
     </div>
 
 
     <div class="dashboard-card">
 
+
         <h2>
-            Performance Overview
+            Overall Performance
         </h2>
+
 
         <div class="performance-container">
 
+
             <div class="large-score">
+
                 {{ average_score }}%
+
             </div>
+
 
             <div>
 
@@ -151,18 +165,22 @@ Dashboard
 
                 {% endif %}
 
+
                 <p>
-                    Your average resume match score.
+                    Average resume-to-job match score.
                 </p>
 
             </div>
 
+
         </div>
+
 
     </div>
 
 
     <div class="dashboard-card">
+
 
         <div class="dashboard-card-header">
 
@@ -170,8 +188,9 @@ Dashboard
                 Recent Analyses
             </h2>
 
+
             <a href="/history">
-                View All
+                View All →
             </a>
 
         </div>
@@ -179,9 +198,12 @@ Dashboard
 
         {% if recent_analyses %}
 
+
         <div class="table-container">
 
+
             <table>
+
 
                 <thead>
 
@@ -206,7 +228,9 @@ Dashboard
 
                 <tbody>
 
+
                     {% for analysis in recent_analyses %}
+
 
                     <tr>
 
@@ -215,9 +239,13 @@ Dashboard
                         </td>
 
                         <td>
-                            <strong>
+
+                            <span class="table-score">
+
                                 {{ analysis["score"] }}%
-                            </strong>
+
+                            </span>
+
                         </td>
 
                         <td>
@@ -226,15 +254,21 @@ Dashboard
 
                     </tr>
 
+
                     {% endfor %}
+
 
                 </tbody>
 
+
             </table>
+
 
         </div>
 
+
         {% else %}
+
 
         <div class="empty-state">
 
@@ -256,23 +290,14 @@ Dashboard
 
         </div>
 
+
         {% endif %}
 
-    </div>
-
-
-    <div class="dashboard-actions">
-
-        <a href="/" class="button primary">
-            + Analyze New Resume
-        </a>
-
-        <a href="/history" class="button secondary">
-            View History
-        </a>
 
     </div>
+
 
 </div>
+
 
 {% endblock %}

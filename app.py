@@ -9,6 +9,7 @@ from flask import (
     send_file
 )
 
+
 from database import (
     create_database,
     save_analysis,
@@ -16,16 +17,21 @@ from database import (
     delete_analysis
 )
 
+
 from resume_parser import (
     extract_text_from_pdf,
     detect_sections
 )
 
+
 from analyzer import (
     analyze_skills,
     get_score_status,
-    generate_suggestions
+    generate_suggestions,
+    get_skill_scores,
+    get_category_scores
 )
+
 
 from report import generate_report
 
@@ -73,6 +79,7 @@ def analyze():
     resume = request.files.get(
         "resume"
     )
+
 
     job_description = request.form.get(
         "job_description",
@@ -143,6 +150,18 @@ def analyze():
     )
 
 
+    skill_scores = get_skill_scores(
+        resume_text,
+        job_description
+    )
+
+
+    category_scores = get_category_scores(
+        resume_text,
+        job_description
+    )
+
+
     status, status_message = get_score_status(
         score
     )
@@ -174,11 +193,13 @@ def analyze():
         score,
         matched,
         missing,
-        suggestions
+        suggestions,
+        category_scores
     )
 
 
     return render_template(
+
         "result.html",
 
         filename=filename,
@@ -196,6 +217,10 @@ def analyze():
         suggestions=suggestions,
 
         sections=sections,
+
+        skill_scores=skill_scores,
+
+        category_scores=category_scores,
 
         report_filename=report_filename
     )
@@ -219,7 +244,9 @@ def dashboard():
     if scores:
 
         average = round(
-            sum(scores) / len(scores)
+            sum(scores)
+            /
+            len(scores)
         )
 
         highest = max(scores)
@@ -229,7 +256,9 @@ def dashboard():
     else:
 
         average = 0
+
         highest = 0
+
         lowest = 0
 
 
@@ -237,6 +266,7 @@ def dashboard():
 
 
     return render_template(
+
         "dashboard.html",
 
         total_analyses=total,
@@ -256,6 +286,7 @@ def history():
 
     analyses = get_all_analyses()
 
+
     return render_template(
         "history.html",
         analyses=analyses
@@ -273,7 +304,9 @@ def download(filename):
     )
 
 
-    if not os.path.exists(file_path):
+    if not os.path.exists(
+        file_path
+    ):
 
         return "Report not found."
 
@@ -293,6 +326,7 @@ def delete(analysis_id):
     delete_analysis(
         analysis_id
     )
+
 
     return redirect(
         url_for("history")

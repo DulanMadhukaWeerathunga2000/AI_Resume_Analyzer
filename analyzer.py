@@ -1,7 +1,8 @@
 import re
 
 
-SKILLS = [
+TECHNICAL_SKILLS = [
+
     "python",
     "java",
     "javascript",
@@ -30,19 +31,46 @@ SKILLS = [
     "machine learning",
     "data analysis",
 
+    "c",
+    "c++",
+    "c#",
+
+    "php",
+    "laravel",
+
+    "spring boot",
+
+    "rest api",
+    "api",
+
+    "bootstrap"
+]
+
+
+SOFT_SKILLS = [
+
     "communication",
     "teamwork",
     "problem solving",
-
-    "project management"
+    "leadership",
+    "time management",
+    "critical thinking",
+    "adaptability",
+    "creativity",
+    "collaboration"
 ]
+
+
+ALL_SKILLS = TECHNICAL_SKILLS + SOFT_SKILLS
 
 
 def skill_exists(text, skill):
 
     text = text.lower()
 
-    if skill.lower() == "node.js":
+    skill = skill.lower()
+
+    if skill == "node.js":
 
         return bool(
             re.search(
@@ -51,14 +79,19 @@ def skill_exists(text, skill):
             )
         )
 
+    escaped_skill = re.escape(skill)
+
     pattern = (
         r"(?<!\w)"
-        + re.escape(skill.lower())
+        + escaped_skill
         + r"(?!\w)"
     )
 
     return bool(
-        re.search(pattern, text)
+        re.search(
+            pattern,
+            text
+        )
     )
 
 
@@ -66,12 +99,13 @@ def extract_required_skills(job_description):
 
     required = []
 
-    for skill in SKILLS:
+    for skill in ALL_SKILLS:
 
         if skill_exists(
             job_description,
             skill
         ):
+
             required.append(skill)
 
     return required
@@ -82,31 +116,34 @@ def analyze_skills(
     job_description
 ):
 
-    required_skills = extract_required_skills(
+    required = extract_required_skills(
         job_description
     )
 
-    matched_skills = []
-    missing_skills = []
+    matched = []
+    missing = []
 
-    for skill in required_skills:
+    for skill in required:
 
         if skill_exists(
             resume_text,
             skill
         ):
-            matched_skills.append(skill)
+
+            matched.append(skill)
 
         else:
-            missing_skills.append(skill)
 
-    if required_skills:
+            missing.append(skill)
+
+    if required:
 
         score = round(
-            len(matched_skills)
+            len(matched)
             /
-            len(required_skills)
-            * 100
+            len(required)
+            *
+            100
         )
 
     else:
@@ -115,9 +152,125 @@ def analyze_skills(
 
     return (
         score,
-        matched_skills,
-        missing_skills
+        matched,
+        missing
     )
+
+
+def get_skill_scores(
+    resume_text,
+    job_description
+):
+
+    required = extract_required_skills(
+        job_description
+    )
+
+    results = []
+
+    for skill in required:
+
+        found = skill_exists(
+            resume_text,
+            skill
+        )
+
+        results.append({
+            "skill": skill,
+            "score": 100 if found else 0,
+            "matched": found
+        })
+
+    return results
+
+
+def get_category_scores(
+    resume_text,
+    job_description
+):
+
+    technical_required = []
+
+    soft_required = []
+
+    for skill in TECHNICAL_SKILLS:
+
+        if skill_exists(
+            job_description,
+            skill
+        ):
+
+            technical_required.append(skill)
+
+
+    for skill in SOFT_SKILLS:
+
+        if skill_exists(
+            job_description,
+            skill
+        ):
+
+            soft_required.append(skill)
+
+
+    technical_matched = []
+
+    for skill in technical_required:
+
+        if skill_exists(
+            resume_text,
+            skill
+        ):
+
+            technical_matched.append(skill)
+
+
+    soft_matched = []
+
+    for skill in soft_required:
+
+        if skill_exists(
+            resume_text,
+            skill
+        ):
+
+            soft_matched.append(skill)
+
+
+    if technical_required:
+
+        technical_score = round(
+            len(technical_matched)
+            /
+            len(technical_required)
+            *
+            100
+        )
+
+    else:
+
+        technical_score = 0
+
+
+    if soft_required:
+
+        soft_score = round(
+            len(soft_matched)
+            /
+            len(soft_required)
+            *
+            100
+        )
+
+    else:
+
+        soft_score = 0
+
+
+    return {
+        "technical": technical_score,
+        "soft": soft_score
+    }
 
 
 def get_score_status(score):
@@ -129,24 +282,26 @@ def get_score_status(score):
             "Your resume strongly matches the job requirements."
         )
 
-    if score >= 60:
+    elif score >= 60:
 
         return (
             "Good Match",
             "Your resume matches many of the required skills."
         )
 
-    if score >= 40:
+    elif score >= 40:
 
         return (
             "Needs Improvement",
             "Your resume has some relevant skills but can be improved."
         )
 
-    return (
-        "Low Match",
-        "Consider improving your resume with more relevant skills."
-    )
+    else:
+
+        return (
+            "Low Match",
+            "Your resume needs more job-related skills."
+        )
 
 
 def generate_suggestions(
@@ -157,36 +312,39 @@ def generate_suggestions(
 
     suggestions = []
 
+
     if score >= 80:
 
         suggestions.append(
-            "Your resume has a strong skill match for this position."
+            "Your resume is strongly aligned with this position."
         )
 
     elif score >= 60:
 
         suggestions.append(
-            "Add more relevant skills to improve your job match."
+            "Add relevant missing skills to improve your match."
         )
 
     elif score >= 40:
 
         suggestions.append(
-            "Add more job-related technical skills and projects."
+            "Customize your resume according to the job description."
         )
 
     else:
 
         suggestions.append(
-            "Review the job description and tailor your resume to the position."
+            "Add more relevant technical skills and projects."
         )
+
 
     if missing_skills:
 
         suggestions.append(
-            "Relevant missing skills: "
+            "Consider adding these skills if you have experience with them: "
             + ", ".join(missing_skills)
         )
+
 
     if not sections["summary"]:
 
@@ -194,11 +352,13 @@ def generate_suggestions(
             "Add a professional summary."
         )
 
+
     if not sections["skills"]:
 
         suggestions.append(
-            "Add a dedicated Technical Skills section."
+            "Create a dedicated Technical Skills section."
         )
+
 
     if not sections["education"]:
 
@@ -206,22 +366,26 @@ def generate_suggestions(
             "Add your education qualifications."
         )
 
+
     if not sections["experience"]:
 
         suggestions.append(
-            "Add relevant work experience or internship experience."
+            "Add internship, work, or relevant experience."
         )
+
 
     if not sections["projects"]:
 
         suggestions.append(
-            "Add relevant academic or personal projects."
+            "Add 2–3 relevant projects with technologies used."
         )
+
 
     if not sections["certifications"]:
 
         suggestions.append(
-            "Add relevant certifications or courses."
+            "Add relevant certifications or online courses."
         )
+
 
     return suggestions

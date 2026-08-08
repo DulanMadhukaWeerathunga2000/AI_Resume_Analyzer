@@ -77,21 +77,6 @@ def get_all_analyses():
     return rows
 
 
-def get_analysis(analysis_id):
-
-    connection = get_connection()
-
-    row = connection.execute("""
-        SELECT *
-        FROM analyses
-        WHERE id = ?
-    """, (analysis_id,)).fetchone()
-
-    connection.close()
-
-    return row
-
-
 def delete_analysis(analysis_id):
 
     connection = get_connection()
@@ -103,11 +88,3 @@ def delete_analysis(analysis_id):
 
     connection.commit()
     connection.close()
-
-
-def parse_json(value):
-
-    try:
-        return json.loads(value)
-    except:
-        return []

@@ -5,8 +5,12 @@ from reportlab.lib.pagesizes import A4
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
-    Spacer
+    Spacer,
+    Table,
+    TableStyle
 )
+
+from reportlab.lib import colors
 
 from reportlab.lib.styles import (
     getSampleStyleSheet,
@@ -24,7 +28,8 @@ def generate_report(
     score,
     matched,
     missing,
-    suggestions
+    suggestions,
+    category_scores
 ):
 
     os.makedirs(
@@ -46,6 +51,7 @@ def generate_report(
         report_filename
     )
 
+
     document = SimpleDocTemplate(
         report_path,
         pagesize=A4,
@@ -55,7 +61,9 @@ def generate_report(
         bottomMargin=40
     )
 
+
     styles = getSampleStyleSheet()
+
 
     title_style = ParagraphStyle(
         "TitleStyle",
@@ -64,14 +72,17 @@ def generate_report(
         fontSize=22
     )
 
+
     score_style = ParagraphStyle(
         "ScoreStyle",
         parent=styles["Heading1"],
         alignment=TA_CENTER,
-        fontSize=30
+        fontSize=32
     )
 
+
     story = []
+
 
     story.append(
         Paragraph(
@@ -80,9 +91,11 @@ def generate_report(
         )
     )
 
+
     story.append(
-        Spacer(1, 15)
+        Spacer(1, 10)
     )
+
 
     story.append(
         Paragraph(
@@ -91,6 +104,7 @@ def generate_report(
         )
     )
 
+
     story.append(
         Paragraph(
             f"Resume: {filename}",
@@ -98,9 +112,11 @@ def generate_report(
         )
     )
 
+
     story.append(
         Spacer(1, 20)
     )
+
 
     story.append(
         Paragraph(
@@ -109,16 +125,90 @@ def generate_report(
         )
     )
 
+
     story.append(
         Paragraph(
-            "Resume Match Score",
+            "Overall Job Match Score",
             styles["Heading2"]
         )
     )
 
+
     story.append(
         Spacer(1, 20)
     )
+
+
+    story.append(
+        Paragraph(
+            "Category Analysis",
+            styles["Heading2"]
+        )
+    )
+
+
+    category_data = [
+        ["Category", "Score"],
+        [
+            "Technical Skills",
+            f"{category_scores['technical']}%"
+        ],
+        [
+            "Soft Skills",
+            f"{category_scores['soft']}%"
+        ]
+    ]
+
+
+    category_table = Table(
+        category_data,
+        colWidths=[250, 150]
+    )
+
+
+    category_table.setStyle(
+        TableStyle([
+            (
+                "BACKGROUND",
+                (0, 0),
+                (-1, 0),
+                colors.lightgrey
+            ),
+
+            (
+                "GRID",
+                (0, 0),
+                (-1, -1),
+                1,
+                colors.grey
+            ),
+
+            (
+                "ALIGN",
+                (1, 0),
+                (-1, -1),
+                "CENTER"
+            ),
+
+            (
+                "PADDING",
+                (0, 0),
+                (-1, -1),
+                8
+            )
+        ])
+    )
+
+
+    story.append(
+        category_table
+    )
+
+
+    story.append(
+        Spacer(1, 20)
+    )
+
 
     story.append(
         Paragraph(
@@ -126,6 +216,7 @@ def generate_report(
             styles["Heading2"]
         )
     )
+
 
     if matched:
 
@@ -147,9 +238,11 @@ def generate_report(
             )
         )
 
+
     story.append(
         Spacer(1, 15)
     )
+
 
     story.append(
         Paragraph(
@@ -157,6 +250,7 @@ def generate_report(
             styles["Heading2"]
         )
     )
+
 
     if missing:
 
@@ -178,16 +272,19 @@ def generate_report(
             )
         )
 
+
     story.append(
         Spacer(1, 15)
     )
 
+
     story.append(
         Paragraph(
-            "Suggestions",
+            "Recommendations",
             styles["Heading2"]
         )
     )
+
 
     for suggestion in suggestions:
 
@@ -198,6 +295,8 @@ def generate_report(
             )
         )
 
+
     document.build(story)
+
 
     return report_filename
