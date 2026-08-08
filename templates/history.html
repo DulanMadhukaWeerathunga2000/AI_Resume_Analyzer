@@ -1,10 +1,17 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 
 <head>
 
-    <title>Analysis History</title>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Analysis History
+    </title>
+
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
@@ -20,10 +27,15 @@
             AI Resume Analyzer
         </div>
 
-        <div>
+
+        <div class="nav-links">
 
             <a href="/">
                 Home
+            </a>
+
+            <a href="/dashboard">
+                Dashboard
             </a>
 
             <a href="/history">
@@ -35,64 +47,204 @@
     </nav>
 
 
-    <div class="container">
 
-        <h1>
-            Analysis History
-        </h1>
+    <div class="dashboard-container">
+
+
+        <div class="dashboard-header">
+
+            <h1>
+                Analysis History
+            </h1>
+
+
+            <p>
+                View your previous resume analysis results.
+            </p>
+
+        </div>
+
 
 
         {% if analyses %}
 
 
-        <table>
-
-            <tr>
-
-                <th>
-                    Resume
-                </th>
-
-                <th>
-                    Score
-                </th>
-
-                <th>
-                    Date
-                </th>
-
-            </tr>
+        <div class="dashboard-card">
 
 
-            {% for analysis in analyses %}
-
-            <tr>
-
-                <td>
-                    {{ analysis[1] }}
-                </td>
-
-                <td>
-                    {{ analysis[2] }}%
-                </td>
-
-                <td>
-                    {{ analysis[6] }}
-                </td>
-
-            </tr>
-
-            {% endfor %}
+            <div class="table-container">
 
 
-        </table>
+                <table>
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Resume
+                            </th>
+
+                            <th>
+                                Score
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+
+                    <tbody>
+
+
+                        {% for analysis in analyses %}
+
+
+                        <tr>
+
+
+                            <td>
+
+                                <strong>
+                                    {{ analysis[1] }}
+                                </strong>
+
+                            </td>
+
+
+                            <td>
+
+                                <strong>
+                                    {{ analysis[2] }}%
+                                </strong>
+
+                            </td>
+
+
+                            <td>
+
+
+                                {% if analysis[2] >= 80 %}
+
+                                <span class="status-badge excellent">
+                                    Excellent
+                                </span>
+
+
+                                {% elif analysis[2] >= 60 %}
+
+                                <span class="status-badge good">
+                                    Good
+                                </span>
+
+
+                                {% elif analysis[2] >= 40 %}
+
+                                <span class="status-badge average">
+                                    Needs Improvement
+                                </span>
+
+
+                                {% else %}
+
+                                <span class="status-badge low">
+                                    Low
+                                </span>
+
+
+                                {% endif %}
+
+
+                            </td>
+
+
+                            <td>
+                                {{ analysis[6] }}
+                            </td>
+
+
+                            <td>
+
+
+                                <a href="/download/{{ analysis[1].rsplit('.', 1)[0] }}_analysis_report.pdf"
+                                    class="small-button">
+                                    PDF
+                                </a>
+
+
+                                <form action="/delete/{{ analysis[0] }}" method="POST" style="display:inline;">
+
+                                    <button type="submit" class="delete-button"
+                                        onclick="return confirm('Delete this analysis?')">
+                                        Delete
+                                    </button>
+
+                                </form>
+
+
+                            </td>
+
+
+                        </tr>
+
+
+                        {% endfor %}
+
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+        </div>
 
 
         {% else %}
 
-        <p>
-            No analysis history available.
-        </p>
+
+        <div class="dashboard-card empty-state">
+
+
+            <div class="empty-icon">
+                📄
+            </div>
+
+
+            <h2>
+                No Analysis History
+            </h2>
+
+
+            <p>
+                You have not analyzed any resumes yet.
+            </p>
+
+
+            <a href="/" class="button primary">
+                Analyze Resume
+            </a>
+
+
+        </div>
+
 
         {% endif %}
 

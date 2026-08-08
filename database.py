@@ -1,39 +1,56 @@
 import sqlite3
+import json
+
 
 DATABASE = "resume_analyzer.db"
 
 
+def get_connection():
+    return sqlite3.connect(DATABASE)
+
+
 def create_database():
 
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
+    connection = get_connection()
+
+    cursor = connection.cursor()
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS analyses (
+
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+
             filename TEXT NOT NULL,
+
             score INTEGER NOT NULL,
+
             matched_skills TEXT,
+
             missing_skills TEXT,
+
             suggestions TEXT,
+
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
         )
     """)
 
-    conn.commit()
-    conn.close()
+    connection.commit()
+
+    connection.close()
 
 
 def save_analysis(
     filename,
     score,
-    matched,
-    missing,
+    matched_skills,
+    missing_skills,
     suggestions
 ):
 
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
+    connection = get_connection()
+
+    cursor = connection.cursor()
 
     cursor.execute("""
         INSERT INTO analyses
@@ -44,23 +61,32 @@ def save_analysis(
             missing_skills,
             suggestions
         )
+
         VALUES (?, ?, ?, ?, ?)
     """, (
+
         filename,
+
         score,
-        ", ".join(matched),
-        ", ".join(missing),
-        " | ".join(suggestions)
+
+        json.dumps(matched_skills),
+
+        json.dumps(missing_skills),
+
+        json.dumps(suggestions)
+
     ))
 
-    conn.commit()
-    conn.close()
+    connection.commit()
+
+    connection.close()
 
 
 def get_all_analyses():
 
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
+    connection = get_connection()
+
+    cursor = connection.cursor()
 
     cursor.execute("""
         SELECT
@@ -71,12 +97,58 @@ def get_all_analyses():
             missing_skills,
             suggestions,
             created_at
+
         FROM analyses
-        ORDER BY id DESC
+
+        ORDER BY id ASC
     """)
 
-    data = cursor.fetchall()
+    rows = cursor.fetchall()
 
-    conn.close()
+    connection.close()
 
-    return data
+    return rows
+
+
+def get_analysis(analysis_id):
+
+    connection = get_connection()
+
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            id,
+            filename,
+            score,
+            matched_skills,
+            missing_skills,
+            suggestions,
+            created_at
+
+        FROM analyses
+
+        WHERE id = ?
+    """, (analysis_id,))
+
+    row = cursor.fetchone()
+
+    connection.close()
+
+    return row
+
+
+def delete_analysis(analysis_id):
+
+    connection = get_connection()
+
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "DELETE FROM analyses WHERE id = ?",
+        (analysis_id,)
+    )
+
+    connection.commit()
+
+    connection.close()

@@ -4,15 +4,13 @@
 
 <head>
 
-    <title>Analysis Result</title>
+    <title>Resume Analysis Result</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
 </head>
 
-
 <body>
-
 
     <nav>
 
@@ -20,15 +18,11 @@
             AI Resume Analyzer
         </div>
 
-        <div>
+        <div class="nav-links">
 
-            <a href="/">
-                Home
-            </a>
+            <a href="/">Home</a>
 
-            <a href="/history">
-                History
-            </a>
+            <a href="/history">History</a>
 
         </div>
 
@@ -37,127 +31,193 @@
 
     <div class="container">
 
+        <div class="page-header">
 
-        <h1>
-            Resume Analysis
-        </h1>
+            <h1>Resume Analysis</h1>
 
-
-        <div class="score-card">
-
-            <h2>
-                Match Score
-            </h2>
-
-            <div class="score">
-                {{ score }}%
-            </div>
+            <p>
+                Analysis result for
+                <strong>{{ filename }}</strong>
+            </p>
 
         </div>
 
 
+        <!-- SCORE -->
+
+        <div class="score-card">
+
+            <h2>Resume Match Score</h2>
+
+            <div class="score-number">
+                {{ score }}%
+            </div>
+
+            <div class="progress">
+
+                <div class="progress-bar" style="width: {{ score }}%;"></div>
+
+            </div>
+
+            <h3 class="status">
+                {{ status }}
+            </h3>
+
+            <p class="status-message">
+                {{ status_message }}
+            </p>
+
+        </div>
+
+
+        <!-- SKILLS -->
+
         <div class="grid">
 
 
-            <div class="result-card">
+            <!-- MATCHED -->
 
-                <h2>
-                    Matched Skills
-                </h2>
+            <div class="result-card matched-card">
+
+                <div class="card-title">
+
+                    <span class="icon">
+                        ✓
+                    </span>
+
+                    <h2>Matched Skills</h2>
+
+                </div>
+
 
                 {% if matched %}
 
-                <ul>
+                <div class="skill-list">
 
                     {% for skill in matched %}
 
-                    <li>
+                    <span class="skill matched">
                         ✓ {{ skill }}
-                    </li>
+                    </span>
 
                     {% endfor %}
 
-                </ul>
+                </div>
 
                 {% else %}
 
-                <p>No matched skills.</p>
+                <p>No matching skills found.</p>
 
                 {% endif %}
 
             </div>
 
 
-            <div class="result-card">
+            <!-- MISSING -->
 
-                <h2>
-                    Missing Skills
-                </h2>
+            <div class="result-card missing-card">
+
+                <div class="card-title">
+
+                    <span class="icon">
+                        !
+                    </span>
+
+                    <h2>Missing Skills</h2>
+
+                </div>
+
 
                 {% if missing %}
 
-                <ul>
+                <div class="skill-list">
 
                     {% for skill in missing %}
 
-                    <li>
-                        ✗ {{ skill }}
-                    </li>
+                    <span class="skill missing">
+                        ! {{ skill }}
+                    </span>
 
                     {% endfor %}
 
-                </ul>
+                </div>
 
                 {% else %}
 
                 <p>
-                    No major missing skills.
+                    Excellent! No major missing skills detected.
                 </p>
 
                 {% endif %}
 
             </div>
 
-
         </div>
 
 
+        <!-- RESUME SECTIONS -->
+
         <div class="result-card">
 
-            <h2>
-                Resume Sections
-            </h2>
+            <div class="card-title">
+
+                <span class="icon">
+                    📄
+                </span>
+
+                <h2>Resume Sections</h2>
+
+            </div>
 
 
-            {% for section, exists in sections.items() %}
+            <div class="section-grid">
 
-            <p>
+                {% for section, exists in sections.items() %}
 
+                <div class="section-item
                 {% if exists %}
-
-                ✓ {{ section|capitalize }}
-
+                section-found
                 {% else %}
+                section-missing
+                {% endif %}">
 
-                ✗ {{ section|capitalize }}
+                    {% if exists %}
 
-                {% endif %}
+                    <span>✓</span>
 
-            </p>
+                    {% else %}
 
-            {% endfor %}
+                    <span>!</span>
+
+                    {% endif %}
+
+                    {{ section|replace("_", " ")|title }}
+
+                </div>
+
+                {% endfor %}
+
+            </div>
 
         </div>
 
 
-        <div class="result-card">
+        <!-- SUGGESTIONS -->
 
-            <h2>
-                Improvement Suggestions
-            </h2>
+        <div class="result-card suggestions-card">
+
+            <div class="card-title">
+
+                <span class="icon">
+                    💡
+                </span>
+
+                <h2>Improvement Suggestions</h2>
+
+            </div>
 
 
-            <ul>
+            <ul class="suggestions">
 
                 {% for suggestion in suggestions %}
 
@@ -172,22 +232,22 @@
         </div>
 
 
+        <!-- BUTTONS -->
+
         <div class="actions">
 
-            <a class="button" href="/">
+            <a href="/" class="button primary">
                 Analyze Another Resume
             </a>
 
 
-            <a class="button" href="/history">
+            <a href="/history" class="button secondary">
                 View History
             </a>
 
         </div>
 
-
     </div>
-
 
 </body>
 

@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 
 <head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>AI Resume Analyzer</title>
 
@@ -20,10 +24,15 @@
             AI Resume Analyzer
         </div>
 
-        <div>
+
+        <div class="nav-links">
 
             <a href="/">
                 Home
+            </a>
+
+            <a href="/dashboard">
+                Dashboard
             </a>
 
             <a href="/history">
@@ -35,44 +44,52 @@
     </nav>
 
 
-    <div class="hero">
+
+    <section class="hero">
 
         <h1>
             AI Resume Analyzer
         </h1>
+
 
         <p>
             Analyze your resume against a job description
             and discover your skill match.
         </p>
 
-    </div>
+    </section>
+
 
 
     <div class="card">
 
+
         <form action="/analyze" method="POST" enctype="multipart/form-data">
 
-            <label>
+
+            <label for="resume">
                 Upload Resume
             </label>
 
-            <input type="file" name="resume" accept=".pdf" required>
+
+            <input type="file" id="resume" name="resume" accept=".pdf" required>
 
 
-            <label>
+
+            <label for="job_description">
                 Job Description
             </label>
 
-            <textarea name="job_description" rows="12" placeholder="Paste the job description here..."
-                required></textarea>
+
+            <textarea id="job_description" name="job_description" rows="12"
+                placeholder="Paste the job description here..." required></textarea>
+
 
 
             <button type="submit">
-
                 Analyze Resume
-
             </button>
+
 
         </form>
 
