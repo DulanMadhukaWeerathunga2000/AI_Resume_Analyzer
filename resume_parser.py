@@ -1,5 +1,3 @@
-import re
-
 from PyPDF2 import PdfReader
 
 
@@ -7,153 +5,78 @@ def extract_text_from_pdf(file_path):
 
     text = ""
 
+    reader = PdfReader(file_path)
 
-    try:
+    for page in reader.pages:
 
-        reader = PdfReader(file_path)
+        page_text = page.extract_text()
 
+        if page_text:
 
-        for page in reader.pages:
-
-            page_text = page.extract_text()
-
-
-            if page_text:
-
-                text += page_text + "\n"
-
-
-    except Exception as error:
-
-        print(
-            "PDF extraction error:",
-            error
-        )
-
+            text += page_text + "\n"
 
     return text
 
 
 def detect_sections(text):
 
-    lower_text = text.lower()
-
+    text = text.lower()
 
     sections = {
-
         "summary": False,
-
         "skills": False,
-
         "education": False,
-
         "experience": False,
-
         "projects": False,
-
         "certifications": False
-
     }
 
+    keywords = {
 
-    summary_keywords = [
-        "summary",
-        "professional summary",
-        "profile",
-        "objective",
-        "career objective"
-    ]
+        "summary": [
+            "summary",
+            "professional summary",
+            "profile",
+            "objective"
+        ],
 
+        "skills": [
+            "skills",
+            "technical skills"
+        ],
 
-    skills_keywords = [
-        "skills",
-        "technical skills",
-        "technical skills & tools"
-    ]
+        "education": [
+            "education",
+            "academic qualifications"
+        ],
 
+        "experience": [
+            "experience",
+            "work experience",
+            "internship"
+        ],
 
-    education_keywords = [
-        "education",
-        "academic",
-        "qualifications"
-    ]
+        "projects": [
+            "projects",
+            "academic projects",
+            "personal projects"
+        ],
 
+        "certifications": [
+            "certifications",
+            "certificates",
+            "courses",
+            "training"
+        ]
+    }
 
-    experience_keywords = [
-        "experience",
-        "work experience",
-        "employment",
-        "internship"
-    ]
+    for section, words in keywords.items():
 
+        for word in words:
 
-    project_keywords = [
-        "projects",
-        "academic projects",
-        "personal projects"
-    ]
+            if word in text:
 
-
-    certification_keywords = [
-        "certifications",
-        "certificates",
-        "courses",
-        "training"
-    ]
-
-
-    for keyword in summary_keywords:
-
-        if keyword in lower_text:
-
-            sections["summary"] = True
-
-            break
-
-
-    for keyword in skills_keywords:
-
-        if keyword in lower_text:
-
-            sections["skills"] = True
-
-            break
-
-
-    for keyword in education_keywords:
-
-        if keyword in lower_text:
-
-            sections["education"] = True
-
-            break
-
-
-    for keyword in experience_keywords:
-
-        if keyword in lower_text:
-
-            sections["experience"] = True
-
-            break
-
-
-    for keyword in project_keywords:
-
-        if keyword in lower_text:
-
-            sections["projects"] = True
-
-            break
-
-
-    for keyword in certification_keywords:
-
-        if keyword in lower_text:
-
-            sections["certifications"] = True
-
-            break
-
+                sections[section] = True
+                break
 
     return sections

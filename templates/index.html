@@ -1,101 +1,50 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
 
-<html lang="en">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>AI Resume Analyzer</title>
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
-</head>
+{% block title %}
+Home - AI Resume Analyzer
+{% endblock %}
 
 
-<body>
+{% block content %}
+
+<section class="hero">
+
+    <h1>
+        AI Resume Analyzer
+    </h1>
+
+    <p>
+        Analyze your resume against a job description
+        and identify your skill match.
+    </p>
+
+</section>
 
 
-    <nav>
+<div class="card">
 
-        <div class="logo">
-            AI Resume Analyzer
-        </div>
+    <form action="/analyze" method="POST" enctype="multipart/form-data">
 
+        <label>
+            Upload Resume PDF
+        </label>
 
-        <div class="nav-links">
-
-            <a href="/">
-                Home
-            </a>
-
-            <a href="/dashboard">
-                Dashboard
-            </a>
-
-            <a href="/history">
-                History
-            </a>
-
-        </div>
-
-    </nav>
+        <input type="file" name="resume" accept=".pdf" required>
 
 
+        <label>
+            Job Description
+        </label>
 
-    <section class="hero">
-
-        <h1>
-            AI Resume Analyzer
-        </h1>
-
-
-        <p>
-            Analyze your resume against a job description
-            and discover your skill match.
-        </p>
-
-    </section>
+        <textarea name="job_description" rows="12" placeholder="Paste the job description here..." required></textarea>
 
 
+        <button type="submit">
+            Analyze Resume
+        </button>
 
-    <div class="card">
+    </form>
 
+</div>
 
-        <form action="/analyze" method="POST" enctype="multipart/form-data">
-
-
-            <label for="resume">
-                Upload Resume
-            </label>
-
-
-            <input type="file" id="resume" name="resume" accept=".pdf" required>
-
-
-
-            <label for="job_description">
-                Job Description
-            </label>
-
-
-            <textarea id="job_description" name="job_description" rows="12"
-                placeholder="Paste the job description here..." required></textarea>
-
-
-
-            <button type="submit">
-                Analyze Resume
-            </button>
-
-
-        </form>
-
-    </div>
-
-
-</body>
-
-</html>
+{% endblock %}

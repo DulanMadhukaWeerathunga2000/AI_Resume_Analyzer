@@ -1,42 +1,32 @@
 import sqlite3
 import json
 
-
 DATABASE = "resume_analyzer.db"
 
 
 def get_connection():
-    return sqlite3.connect(DATABASE)
+    connection = sqlite3.connect(DATABASE)
+    connection.row_factory = sqlite3.Row
+    return connection
 
 
 def create_database():
 
     connection = get_connection()
 
-    cursor = connection.cursor()
-
-    cursor.execute("""
+    connection.execute("""
         CREATE TABLE IF NOT EXISTS analyses (
-
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-
             filename TEXT NOT NULL,
-
-            score INTEGER NOT NULL,
-
-            matched_skills TEXT,
-
-            missing_skills TEXT,
-
-            suggestions TEXT,
-
+            score INTEGER NOT NULL DEFAULT 0,
+            matched_skills TEXT DEFAULT '[]',
+            missing_skills TEXT DEFAULT '[]',
+            suggestions TEXT DEFAULT '[]',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-
         )
     """)
 
     connection.commit()
-
     connection.close()
 
 
@@ -50,9 +40,7 @@ def save_analysis(
 
     connection = get_connection()
 
-    cursor = connection.cursor()
-
-    cursor.execute("""
+    connection.execute("""
         INSERT INTO analyses
         (
             filename,
@@ -61,24 +49,16 @@ def save_analysis(
             missing_skills,
             suggestions
         )
-
         VALUES (?, ?, ?, ?, ?)
     """, (
-
         filename,
-
         score,
-
         json.dumps(matched_skills),
-
         json.dumps(missing_skills),
-
         json.dumps(suggestions)
-
     ))
 
     connection.commit()
-
     connection.close()
 
 
@@ -86,24 +66,11 @@ def get_all_analyses():
 
     connection = get_connection()
 
-    cursor = connection.cursor()
-
-    cursor.execute("""
-        SELECT
-            id,
-            filename,
-            score,
-            matched_skills,
-            missing_skills,
-            suggestions,
-            created_at
-
+    rows = connection.execute("""
+        SELECT *
         FROM analyses
-
-        ORDER BY id ASC
-    """)
-
-    rows = cursor.fetchall()
+        ORDER BY id DESC
+    """).fetchall()
 
     connection.close()
 
@@ -114,24 +81,11 @@ def get_analysis(analysis_id):
 
     connection = get_connection()
 
-    cursor = connection.cursor()
-
-    cursor.execute("""
-        SELECT
-            id,
-            filename,
-            score,
-            matched_skills,
-            missing_skills,
-            suggestions,
-            created_at
-
+    row = connection.execute("""
+        SELECT *
         FROM analyses
-
         WHERE id = ?
-    """, (analysis_id,))
-
-    row = cursor.fetchone()
+    """, (analysis_id,)).fetchone()
 
     connection.close()
 
@@ -142,13 +96,18 @@ def delete_analysis(analysis_id):
 
     connection = get_connection()
 
-    cursor = connection.cursor()
-
-    cursor.execute(
+    connection.execute(
         "DELETE FROM analyses WHERE id = ?",
         (analysis_id,)
     )
 
     connection.commit()
-
     connection.close()
+
+
+def parse_json(value):
+
+    try:
+        return json.loads(value)
+    except:
+        return []

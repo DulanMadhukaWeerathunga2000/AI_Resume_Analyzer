@@ -5,12 +5,8 @@ from reportlab.lib.pagesizes import A4
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
-    Spacer,
-    Table,
-    TableStyle
+    Spacer
 )
-
-from reportlab.lib import colors
 
 from reportlab.lib.styles import (
     getSampleStyleSheet,
@@ -36,23 +32,19 @@ def generate_report(
         exist_ok=True
     )
 
-
     base_name = os.path.splitext(
         filename
     )[0]
-
 
     report_filename = (
         base_name
         + "_analysis_report.pdf"
     )
 
-
     report_path = os.path.join(
         REPORT_FOLDER,
         report_filename
     )
-
 
     document = SimpleDocTemplate(
         report_path,
@@ -63,30 +55,23 @@ def generate_report(
         bottomMargin=40
     )
 
-
     styles = getSampleStyleSheet()
-
 
     title_style = ParagraphStyle(
         "TitleStyle",
         parent=styles["Title"],
         alignment=TA_CENTER,
-        fontSize=22,
-        spaceAfter=20
+        fontSize=22
     )
-
 
     score_style = ParagraphStyle(
         "ScoreStyle",
         parent=styles["Heading1"],
         alignment=TA_CENTER,
-        fontSize=30,
-        spaceAfter=20
+        fontSize=30
     )
 
-
     story = []
-
 
     story.append(
         Paragraph(
@@ -95,6 +80,9 @@ def generate_report(
         )
     )
 
+    story.append(
+        Spacer(1, 15)
+    )
 
     story.append(
         Paragraph(
@@ -103,24 +91,16 @@ def generate_report(
         )
     )
 
-
-    story.append(
-        Spacer(1, 10)
-    )
-
-
     story.append(
         Paragraph(
-            f"<b>Resume:</b> {filename}",
+            f"Resume: {filename}",
             styles["Normal"]
         )
     )
 
-
     story.append(
-        Spacer(1, 15)
+        Spacer(1, 20)
     )
-
 
     story.append(
         Paragraph(
@@ -129,7 +109,6 @@ def generate_report(
         )
     )
 
-
     story.append(
         Paragraph(
             "Resume Match Score",
@@ -137,13 +116,9 @@ def generate_report(
         )
     )
 
-
     story.append(
         Spacer(1, 20)
     )
-
-
-    # Matched skills
 
     story.append(
         Paragraph(
@@ -151,7 +126,6 @@ def generate_report(
             styles["Heading2"]
         )
     )
-
 
     if matched:
 
@@ -173,13 +147,9 @@ def generate_report(
             )
         )
 
-
     story.append(
         Spacer(1, 15)
     )
-
-
-    # Missing skills
 
     story.append(
         Paragraph(
@@ -187,7 +157,6 @@ def generate_report(
             styles["Heading2"]
         )
     )
-
 
     if missing:
 
@@ -209,21 +178,16 @@ def generate_report(
             )
         )
 
-
     story.append(
         Spacer(1, 15)
     )
 
-
-    # Suggestions
-
     story.append(
         Paragraph(
-            "Improvement Suggestions",
+            "Suggestions",
             styles["Heading2"]
         )
     )
-
 
     for suggestion in suggestions:
 
@@ -234,8 +198,6 @@ def generate_report(
             )
         )
 
-
     document.build(story)
-
 
     return report_filename

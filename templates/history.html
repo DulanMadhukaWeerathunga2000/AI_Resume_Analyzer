@@ -1,257 +1,137 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
 
-<html lang="en">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>
-        Analysis History
-    </title>
+{% block title %}
+History
+{% endblock %}
 
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% block content %}
 
-</head>
+<div class="dashboard-container">
 
+    <div class="dashboard-header">
 
-<body>
+        <h1>
+            Analysis History
+        </h1>
 
+        <p>
+            Your previous resume analyses
+        </p>
 
-    <nav>
-
-        <div class="logo">
-            AI Resume Analyzer
-        </div>
-
-
-        <div class="nav-links">
-
-            <a href="/">
-                Home
-            </a>
-
-            <a href="/dashboard">
-                Dashboard
-            </a>
-
-            <a href="/history">
-                History
-            </a>
-
-        </div>
-
-    </nav>
+    </div>
 
 
-
-    <div class="dashboard-container">
-
-
-        <div class="dashboard-header">
-
-            <h1>
-                Analysis History
-            </h1>
-
-
-            <p>
-                View your previous resume analysis results.
-            </p>
-
-        </div>
-
-
+    <div class="dashboard-card">
 
         {% if analyses %}
 
+        <div class="table-container">
 
-        <div class="dashboard-card">
+            <table>
 
+                <thead>
 
-            <div class="table-container">
+                    <tr>
 
+                        <th>
+                            Resume
+                        </th>
 
-                <table>
+                        <th>
+                            Score
+                        </th>
 
+                        <th>
+                            Date
+                        </th>
 
-                    <thead>
+                        <th>
+                            Action
+                        </th>
 
-                        <tr>
+                    </tr>
 
-                            <th>
-                                Resume
-                            </th>
+                </thead>
 
-                            <th>
-                                Score
-                            </th>
 
-                            <th>
-                                Status
-                            </th>
+                <tbody>
 
-                            <th>
-                                Date
-                            </th>
+                    {% for analysis in analyses %}
 
-                            <th>
-                                Action
-                            </th>
+                    <tr>
 
-                        </tr>
+                        <td>
+                            {{ analysis["filename"] }}
+                        </td>
 
-                    </thead>
+                        <td>
 
+                            <strong>
+                                {{ analysis["score"] }}%
+                            </strong>
 
+                        </td>
 
-                    <tbody>
+                        <td>
+                            {{ analysis["created_at"] }}
+                        </td>
 
+                        <td>
 
-                        {% for analysis in analyses %}
+                            <a href="/download/{{ analysis['filename'].rsplit('.', 1)[0] }}_analysis_report.pdf"
+                                class="small-button">
+                                PDF
+                            </a>
 
 
-                        <tr>
+                            <form action="/delete/{{ analysis['id'] }}" method="POST" style="display:inline;">
 
+                                <button type="submit" class="delete-button"
+                                    onclick="return confirm('Delete this analysis?')">
+                                    Delete
+                                </button>
 
-                            <td>
+                            </form>
 
-                                <strong>
-                                    {{ analysis[1] }}
-                                </strong>
+                        </td>
 
-                            </td>
+                    </tr>
 
+                    {% endfor %}
 
-                            <td>
+                </tbody>
 
-                                <strong>
-                                    {{ analysis[2] }}%
-                                </strong>
-
-                            </td>
-
-
-                            <td>
-
-
-                                {% if analysis[2] >= 80 %}
-
-                                <span class="status-badge excellent">
-                                    Excellent
-                                </span>
-
-
-                                {% elif analysis[2] >= 60 %}
-
-                                <span class="status-badge good">
-                                    Good
-                                </span>
-
-
-                                {% elif analysis[2] >= 40 %}
-
-                                <span class="status-badge average">
-                                    Needs Improvement
-                                </span>
-
-
-                                {% else %}
-
-                                <span class="status-badge low">
-                                    Low
-                                </span>
-
-
-                                {% endif %}
-
-
-                            </td>
-
-
-                            <td>
-                                {{ analysis[6] }}
-                            </td>
-
-
-                            <td>
-
-
-                                <a href="/download/{{ analysis[1].rsplit('.', 1)[0] }}_analysis_report.pdf"
-                                    class="small-button">
-                                    PDF
-                                </a>
-
-
-                                <form action="/delete/{{ analysis[0] }}" method="POST" style="display:inline;">
-
-                                    <button type="submit" class="delete-button"
-                                        onclick="return confirm('Delete this analysis?')">
-                                        Delete
-                                    </button>
-
-                                </form>
-
-
-                            </td>
-
-
-                        </tr>
-
-
-                        {% endfor %}
-
-
-                    </tbody>
-
-
-                </table>
-
-
-            </div>
-
+            </table>
 
         </div>
 
-
         {% else %}
 
-
-        <div class="dashboard-card empty-state">
-
+        <div class="empty-state">
 
             <div class="empty-icon">
                 📄
             </div>
 
-
             <h2>
                 No Analysis History
             </h2>
 
-
             <p>
-                You have not analyzed any resumes yet.
+                Analyze a resume to create your first record.
             </p>
-
 
             <a href="/" class="button primary">
                 Analyze Resume
             </a>
 
-
         </div>
-
 
         {% endif %}
 
-
     </div>
 
+</div>
 
-</body>
-
-</html>
+{% endblock %}
