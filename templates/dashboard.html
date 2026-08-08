@@ -15,7 +15,7 @@ Dashboard
     <div class="dashboard-header">
 
         <div class="small-label">
-            OVERVIEW
+            AI RESUME ANALYTICS
         </div>
 
         <h1>
@@ -62,11 +62,32 @@ Dashboard
             <div>
 
                 <p class="stat-title">
-                    Average Score
+                    Average Match
                 </p>
 
                 <h2>
                     {{ average_score }}%
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <span class="stat-icon">
+                🤖
+            </span>
+
+            <div>
+
+                <p class="stat-title">
+                    Average ATS
+                </p>
+
+                <h2>
+                    {{ average_ats }}%
                 </h2>
 
             </div>
@@ -83,32 +104,11 @@ Dashboard
             <div>
 
                 <p class="stat-title">
-                    Highest Score
+                    Highest Match
                 </p>
 
                 <h2>
                     {{ highest_score }}%
-                </h2>
-
-            </div>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <span class="stat-icon">
-                📉
-            </span>
-
-            <div>
-
-                <p class="stat-title">
-                    Lowest Score
-                </p>
-
-                <h2>
-                    {{ lowest_score }}%
                 </h2>
 
             </div>
@@ -121,12 +121,14 @@ Dashboard
 
     <div class="dashboard-card">
 
+
         <h2>
             Overall Performance
         </h2>
 
 
         <div class="performance-container">
+
 
             <div class="large-score">
 
@@ -165,12 +167,14 @@ Dashboard
 
 
                 <p>
-                    Average resume-to-job match score.
+                    Average resume-to-job match.
                 </p>
 
             </div>
 
+
         </div>
+
 
     </div>
 
@@ -207,7 +211,11 @@ Dashboard
                         </th>
 
                         <th>
-                            Score
+                            Match
+                        </th>
+
+                        <th>
+                            ATS
                         </th>
 
                         <th>
@@ -234,7 +242,19 @@ Dashboard
                         <td>
 
                             <span class="table-score">
+
                                 {{ analysis["score"] }}%
+
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <span class="table-score">
+
+                                {{ analysis["ats_score"] }}%
+
                             </span>
 
                         </td>

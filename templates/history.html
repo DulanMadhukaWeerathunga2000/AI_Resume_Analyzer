@@ -15,7 +15,7 @@ Analysis History
     <div class="dashboard-header">
 
         <div class="small-label">
-            RECORDS
+            ANALYSIS RECORDS
         </div>
 
         <h1>
@@ -48,7 +48,11 @@ Analysis History
                         </th>
 
                         <th>
-                            Score
+                            Match
+                        </th>
+
+                        <th>
+                            ATS
                         </th>
 
                         <th>
@@ -76,23 +80,42 @@ Analysis History
                             {{ analysis["filename"] }}
                         </td>
 
+
                         <td>
 
                             <span class="table-score">
+
                                 {{ analysis["score"] }}%
+
                             </span>
 
                         </td>
+
+
+                        <td>
+
+                            <span class="table-score">
+
+                                {{ analysis["ats_score"] }}%
+
+                            </span>
+
+                        </td>
+
 
                         <td>
                             {{ analysis["created_at"] }}
                         </td>
 
+
                         <td>
+
 
                             <a href="/download/{{ analysis['filename'].rsplit('.', 1)[0] }}_analysis_report.pdf"
                                 class="small-button">
+
                                 PDF
+
                             </a>
 
 
@@ -103,12 +126,16 @@ Analysis History
                                     'Delete this analysis?'
                                     )
                                     ">
+
                                     Delete
+
                                 </button>
 
                             </form>
 
+
                         </td>
+
 
                     </tr>
 
@@ -141,7 +168,9 @@ Analysis History
             </p>
 
             <a href="/" class="button primary">
+
                 Analyze Resume
+
             </a>
 
         </div>

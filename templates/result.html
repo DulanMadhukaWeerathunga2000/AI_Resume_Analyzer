@@ -15,7 +15,7 @@ Analysis Result
     <div class="page-header">
 
         <div class="small-label">
-            ANALYSIS RESULT
+            AI + NLP ANALYSIS
         </div>
 
         <h1>
@@ -82,7 +82,8 @@ Analysis Result
             </div>
 
             <p>
-                Resume keyword and structure score.
+                NLP keyword + skill +
+                resume structure analysis.
             </p>
 
         </div>
@@ -155,11 +156,76 @@ Analysis Result
 
 
         <h2>
-            📊 Skill Analysis
+            🧠 NLP Keyword Analysis
         </h2>
 
 
-        {% if skill_scores %}
+        <p>
+            Keywords found in both the resume
+            and job description:
+        </p>
+
+
+        <div class="skill-list">
+
+
+            {% for keyword in keyword_data["common_keywords"] %}
+
+
+            <span class="skill matched">
+
+                ✓ {{ keyword }}
+
+            </span>
+
+
+            {% endfor %}
+
+
+        </div>
+
+
+        {% if keyword_data["missing_keywords"] %}
+
+
+        <h3 class="keyword-title">
+
+            Potential Missing Keywords
+
+        </h3>
+
+
+        <div class="skill-list">
+
+
+            {% for keyword in keyword_data["missing_keywords"][:20] %}
+
+
+            <span class="skill missing">
+
+                ! {{ keyword }}
+
+            </span>
+
+
+            {% endfor %}
+
+
+        </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+    <div class="result-card">
+
+
+        <h2>
+            📊 Skill Analysis
+        </h2>
 
 
         {% for item in skill_scores %}
@@ -169,6 +235,7 @@ Analysis Result
 
 
             <div class="skill-name">
+
 
                 {% if item["matched"] %}
 
@@ -186,6 +253,7 @@ Analysis Result
 
 
                 {{ item["skill"] }}
+
 
             </div>
 
@@ -212,26 +280,27 @@ Analysis Result
 
 
             <div class="skill-score">
+
                 {{ item["score"] }}%
+
             </div>
 
 
         </div>
 
 
-        {% endfor %}
-
-
         {% else %}
 
 
         <p class="muted">
-            No recognized skills were detected
-            in the job description.
+
+            No recognized skills were
+            detected in the job description.
+
         </p>
 
 
-        {% endif %}
+        {% endfor %}
 
 
     </div>
@@ -243,28 +312,39 @@ Analysis Result
         <div class="result-card">
 
             <h2>
+
                 <span class="success-icon">
                     ✓
                 </span>
+
                 Matched Skills
+
             </h2>
 
 
             <div class="skill-list">
 
+
                 {% for skill in matched %}
 
+
                 <span class="skill matched">
+
                     ✓ {{ skill }}
+
                 </span>
 
+
                 {% else %}
+
 
                 <p>
                     No matching skills found.
                 </p>
 
+
                 {% endfor %}
+
 
             </div>
 
@@ -274,28 +354,39 @@ Analysis Result
         <div class="result-card">
 
             <h2>
+
                 <span class="warning-icon">
                     !
                 </span>
+
                 Missing Skills
+
             </h2>
 
 
             <div class="skill-list">
 
+
                 {% for skill in missing %}
 
+
                 <span class="skill missing">
+
                     ! {{ skill }}
+
                 </span>
 
+
                 {% else %}
+
 
                 <p>
                     No major missing skills detected.
                 </p>
 
+
                 {% endfor %}
+
 
             </div>
 
@@ -320,11 +411,17 @@ Analysis Result
 
             <div class="
                 section-item
+
                 {% if exists %}
+
                 section-found
+
                 {% else %}
+
                 section-missing
+
                 {% endif %}
+
                 ">
 
                 <span>
@@ -389,22 +486,30 @@ Analysis Result
 
 
         <a href="/" class="button primary">
+
             Analyze Another
+
         </a>
 
 
         <a href="/dashboard" class="button secondary">
+
             Dashboard
+
         </a>
 
 
         <a href="/history" class="button secondary">
+
             History
+
         </a>
 
 
         <a href="/download/{{ report_filename }}" class="button download">
+
             Download PDF Report
+
         </a>
 
 

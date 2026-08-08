@@ -7,9 +7,13 @@ DATABASE = "resume_analyzer.db"
 
 def get_connection():
 
-    connection = sqlite3.connect(DATABASE)
+    connection = sqlite3.connect(
+        DATABASE
+    )
 
-    connection.row_factory = sqlite3.Row
+    connection.row_factory = (
+        sqlite3.Row
+    )
 
     return connection
 
@@ -18,7 +22,9 @@ def create_database():
 
     connection = get_connection()
 
+
     connection.execute("""
+
         CREATE TABLE IF NOT EXISTS analyses (
 
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,6 +32,8 @@ def create_database():
             filename TEXT NOT NULL,
 
             score INTEGER NOT NULL,
+
+            ats_score INTEGER DEFAULT 0,
 
             matched_skills TEXT,
 
@@ -37,7 +45,9 @@ def create_database():
                 DEFAULT CURRENT_TIMESTAMP
 
         )
+
     """)
+
 
     connection.commit()
 
@@ -45,33 +55,68 @@ def create_database():
 
 
 def save_analysis(
+
     filename,
+
     score,
+
+    ats_score,
+
     matched_skills,
+
     missing_skills,
+
     suggestions
+
 ):
 
     connection = get_connection()
 
+
     connection.execute("""
+
         INSERT INTO analyses
+
         (
+
             filename,
+
             score,
+
+            ats_score,
+
             matched_skills,
+
             missing_skills,
+
+            suggestions
+
+        )
+
+        VALUES (?, ?, ?, ?, ?, ?)
+
+    """, (
+
+        filename,
+
+        score,
+
+        ats_score,
+
+        json.dumps(
+            matched_skills
+        ),
+
+        json.dumps(
+            missing_skills
+        ),
+
+        json.dumps(
             suggestions
         )
 
-        VALUES (?, ?, ?, ?, ?)
-    """, (
-        filename,
-        score,
-        json.dumps(matched_skills),
-        json.dumps(missing_skills),
-        json.dumps(suggestions)
     ))
+
 
     connection.commit()
 
@@ -82,28 +127,41 @@ def get_all_analyses():
 
     connection = get_connection()
 
+
     rows = connection.execute("""
+
         SELECT *
+
         FROM analyses
+
         ORDER BY id DESC
+
     """).fetchall()
 
+
     connection.close()
+
 
     return rows
 
 
-def delete_analysis(analysis_id):
+def delete_analysis(
+    analysis_id
+):
 
     connection = get_connection()
 
-    connection.execute(
-        """
+
+    connection.execute("""
+
         DELETE FROM analyses
+
         WHERE id = ?
-        """,
-        (analysis_id,)
-    )
+
+    """, (
+        analysis_id,
+    ))
+
 
     connection.commit()
 
