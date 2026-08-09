@@ -1,439 +1,116 @@
+from flask import Flask, render_template, request, redirect, url_for, flash
+from werkzeug.utils import secure_filename
+from pathlib import Path
 import os
 
-from flask import (
-    Flask,
-    render_template,
-    request,
-    redirect,
-    url_for,
-    send_file
-)
-
-
-from database import (
-
-    create_database,
-
-    save_analysis,
-
-    get_all_analyses,
-
-    delete_analysis
-
-)
-
-
-from resume_parser import (
-
-    extract_text_from_pdf,
-
-    clean_text,
-
-    detect_sections
-
-)
-
-
-from analyzer import (
-
-    analyze_resume
-
-)
-
-
-from report import (
-
-    generate_report
-
-)
-
+from resume_parser import extract_text_from_pdf, analyze_resume_sections
+from analyzer import analyze_resume
+from database import init_db, save_analysis, get_all_analyses, get_analysis
 
 app = Flask(__name__)
+app.secret_key = "change-this-secret-key"
+
+BASE_DIR = Path(__file__).resolve().parent
+UPLOAD_FOLDER = BASE_DIR / "uploads"
+UPLOAD_FOLDER.mkdir(exist_ok=True)
+
+ALLOWED_EXTENSIONS = {"pdf"}
+app.config["UPLOAD_FOLDER"] = str(UPLOAD_FOLDER)
+app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
+
+init_db()
 
 
-UPLOAD_FOLDER = "uploads"
-
-REPORT_FOLDER = "reports"
-
-
-os.makedirs(
-
-    UPLOAD_FOLDER,
-
-    exist_ok=True
-
-)
-
-
-os.makedirs(
-
-    REPORT_FOLDER,
-
-    exist_ok=True
-
-)
-
-
-app.config[
-    "UPLOAD_FOLDER"
-] = UPLOAD_FOLDER
-
-
-create_database()
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route("/")
 def home():
-
-    return render_template(
-        "index.html"
-    )
+    return render_template("home.html")
 
 
-@app.route(
-    "/analyze",
-    methods=["POST"]
-)
+@app.route("/analyze", methods=["POST"])
 def analyze():
+    if "resume" not in request.files:
+        flash("Please select a PDF resume.")
+        return redirect(url_for("home"))
 
-    resume = request.files.get(
-        "resume"
-    )
+    resume = request.files["resume"]
+    job_description = request.form.get("job_description", "").strip()
 
+    if not resume or resume.filename == "":
+        flash("Please select a resume PDF.")
+        return redirect(url_for("home"))
 
-    job_description = request.form.get(
-
-        "job_description",
-
-        ""
-
-    ).strip()
-
-
-    if not resume:
-
-        return (
-            "Please upload a resume."
-        )
-
-
-    if not resume.filename:
-
-        return (
-            "Please select a resume."
-        )
-
-
-    if not resume.filename.lower().endswith(
-        ".pdf"
-    ):
-
-        return (
-            "Only PDF resumes are supported."
-        )
-
+    if not allowed_file(resume.filename):
+        flash("Only PDF files are supported.")
+        return redirect(url_for("home"))
 
     if not job_description:
+        flash("Please enter a job description.")
+        return redirect(url_for("home"))
 
-        return (
-            "Please enter a job description."
-        )
-
-
-    filename = resume.filename
-
-
-    file_path = os.path.join(
-
-        UPLOAD_FOLDER,
-
-        filename
-
-    )
-
-
+    filename = secure_filename(resume.filename)
+    file_path = UPLOAD_FOLDER / filename
     resume.save(file_path)
 
-
     try:
+        resume_text = extract_text_from_pdf(str(file_path))
 
-        resume_text = (
-            extract_text_from_pdf(
-                file_path
-            )
+        if not resume_text.strip():
+            flash("Could not extract text from the PDF. Try a text-based PDF.")
+            return redirect(url_for("home"))
+
+        result = analyze_resume(resume_text, job_description)
+        result["sections"] = analyze_resume_sections(resume_text)
+
+        analysis_id = save_analysis(
+            filename=filename,
+            job_description=job_description,
+            result=result
         )
 
-    except Exception as error:
-
-        return (
-
-            "Could not read PDF: "
-
-            + str(error)
-
+        return render_template(
+            "result.html",
+            result=result,
+            analysis_id=analysis_id,
+            filename=filename
         )
 
-
-    resume_text = clean_text(
-        resume_text
-    )
-
-
-    if not resume_text:
-
-        return (
-            "No readable text found in the PDF."
-        )
-
-
-    sections = detect_sections(
-        resume_text
-    )
-
-
-    result = analyze_resume(
-
-        resume_text,
-
-        job_description,
-
-        sections
-
-    )
-
-
-    save_analysis(
-
-        filename,
-
-        result["match_score"],
-
-        result["ats_score"],
-
-        result["matched"],
-
-        result["missing"],
-
-        result["suggestions"]
-
-    )
-
-
-    report_filename = generate_report(
-
-        filename,
-
-        result["match_score"],
-
-        result["ats_score"],
-
-        result["matched"],
-
-        result["missing"],
-
-        result["suggestions"],
-
-        result["category_scores"],
-
-        result["keyword_data"]
-
-    )
-
-
-    return render_template(
-
-        "result.html",
-
-        filename=filename,
-
-        score=result["match_score"],
-
-        ats_score=result["ats_score"],
-
-        status=result["status"],
-
-        status_message=result["status_message"],
-
-        matched=result["matched"],
-
-        missing=result["missing"],
-
-        suggestions=result["suggestions"],
-
-        sections=sections,
-
-        skill_scores=result["skill_scores"],
-
-        category_scores=result["category_scores"],
-
-        keyword_data=result["keyword_data"],
-
-        report_filename=report_filename
-
-    )
-
-
-@app.route("/dashboard")
-def dashboard():
-
-    analyses = get_all_analyses()
-
-
-    scores = [
-
-        row["score"]
-
-        for row in analyses
-
-    ]
-
-
-    ats_scores = [
-
-        row["ats_score"]
-
-        for row in analyses
-
-    ]
-
-
-    total = len(
-        analyses
-    )
-
-
-    if scores:
-
-        average = round(
-            sum(scores)
-            /
-            len(scores)
-        )
-
-        highest = max(scores)
-
-        lowest = min(scores)
-
-    else:
-
-        average = 0
-
-        highest = 0
-
-        lowest = 0
-
-
-    if ats_scores:
-
-        average_ats = round(
-
-            sum(ats_scores)
-            /
-            len(ats_scores)
-
-        )
-
-    else:
-
-        average_ats = 0
-
-
-    recent = analyses[:5]
-
-
-    return render_template(
-
-        "dashboard.html",
-
-        total_analyses=total,
-
-        average_score=average,
-
-        average_ats=average_ats,
-
-        highest_score=highest,
-
-        lowest_score=lowest,
-
-        recent_analyses=recent
-
-    )
+    except Exception as exc:
+        app.logger.exception("Analysis failed")
+        flash(f"Analysis failed: {exc}")
+        return redirect(url_for("home"))
+
+    finally:
+        try:
+            file_path.unlink(missing_ok=True)
+        except Exception:
+            pass
 
 
 @app.route("/history")
 def history():
-
     analyses = get_all_analyses()
+    return render_template("history.html", analyses=analyses)
 
+
+@app.route("/history/<int:analysis_id>")
+def history_detail(analysis_id):
+    analysis = get_analysis(analysis_id)
+
+    if not analysis:
+        flash("Analysis not found.")
+        return redirect(url_for("history"))
 
     return render_template(
-
-        "history.html",
-
-        analyses=analyses
-
-    )
-
-
-@app.route(
-    "/download/<path:filename>"
-)
-def download(filename):
-
-    file_path = os.path.join(
-
-        REPORT_FOLDER,
-
-        filename
-
-    )
-
-
-    if not os.path.exists(
-        file_path
-    ):
-
-        return (
-            "Report not found."
-        )
-
-
-    return send_file(
-
-        file_path,
-
-        as_attachment=True
-
-    )
-
-
-@app.route(
-
-    "/delete/<int:analysis_id>",
-
-    methods=["POST"]
-
-)
-def delete(analysis_id):
-
-    delete_analysis(
-        analysis_id
-    )
-
-
-    return redirect(
-
-        url_for(
-            "history"
-        )
-
+        "result.html",
+        result=analysis["result"],
+        analysis_id=analysis["id"],
+        filename=analysis["filename"]
     )
 
 
 if __name__ == "__main__":
-
-    app.run(
-
-        debug=True
-
-    )
+    app.run(debug=True)

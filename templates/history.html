@@ -1,188 +1,55 @@
 {% extends "base.html" %}
-
-
-{% block title %}
-Analysis History
-{% endblock %}
-
+{% block title %}History{% endblock %}
 
 {% block content %}
-
-
-<div class="dashboard-container">
-
-
-    <div class="dashboard-header">
-
-        <div class="small-label">
-            ANALYSIS RECORDS
-        </div>
-
-        <h1>
-            Analysis History
-        </h1>
-
-        <p>
-            View previous resume analyses.
-        </p>
-
-    </div>
-
-
-    <div class="dashboard-card">
-
-
-        {% if analyses %}
-
-
-        <div class="table-container">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            Resume
-                        </th>
-
-                        <th>
-                            Match
-                        </th>
-
-                        <th>
-                            ATS
-                        </th>
-
-                        <th>
-                            Date
-                        </th>
-
-                        <th>
-                            Action
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-
-                    {% for analysis in analyses %}
-
-
-                    <tr>
-
-                        <td>
-                            {{ analysis["filename"] }}
-                        </td>
-
-
-                        <td>
-
-                            <span class="table-score">
-
-                                {{ analysis["score"] }}%
-
-                            </span>
-
-                        </td>
-
-
-                        <td>
-
-                            <span class="table-score">
-
-                                {{ analysis["ats_score"] }}%
-
-                            </span>
-
-                        </td>
-
-
-                        <td>
-                            {{ analysis["created_at"] }}
-                        </td>
-
-
-                        <td>
-
-
-                            <a href="/download/{{ analysis['filename'].rsplit('.', 1)[0] }}_analysis_report.pdf"
-                                class="small-button">
-
-                                PDF
-
-                            </a>
-
-
-                            <form action="/delete/{{ analysis['id'] }}" method="POST" class="inline-form">
-
-                                <button type="submit" class="delete-button" onclick="
-                                    return confirm(
-                                    'Delete this analysis?'
-                                    )
-                                    ">
-
-                                    Delete
-
-                                </button>
-
-                            </form>
-
-
-                        </td>
-
-
-                    </tr>
-
-
-                    {% endfor %}
-
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-        {% else %}
-
-
-        <div class="empty-state">
-
-            <div class="empty-icon">
-                📄
-            </div>
-
-            <h2>
-                No Analysis History
-            </h2>
-
-            <p>
-                Analyze a resume to create your first record.
-            </p>
-
-            <a href="/" class="button primary">
-
-                Analyze Resume
-
-            </a>
-
-        </div>
-
-
-        {% endif %}
-
-
-    </div>
-
-
+<div class="page-heading">
+    <span class="eyebrow">SAVED ANALYSES</span>
+    <h1>Analysis History</h1>
+    <p>Previous resume analysis results.</p>
 </div>
 
-
+{% if analyses %}
+<div class="card table-card">
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Resume</th>
+                    <th>Match</th>
+                    <th>ATS</th>
+                    <th>Technical</th>
+                    <th>Soft Skills</th>
+                    <th>Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item in analyses %}
+                <tr>
+                    <td>#{{ item.id }}</td>
+                    <td>{{ item.filename }}</td>
+                    <td>{{ item.match_score }}%</td>
+                    <td>{{ item.ats_score }}%</td>
+                    <td>{{ item.technical_score }}%</td>
+                    <td>{{ item.soft_score }}%</td>
+                    <td>{{ item.created_at }}</td>
+                    <td>
+                        <a class="small-btn" href="{{ url_for('history_detail', analysis_id=item.id) }}">
+                            View
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card empty">
+    <h2>No analysis history yet.</h2>
+    <p>Analyze a resume to create your first history record.</p>
+    <a class="btn primary" href="{{ url_for('home') }}">Start Analysis</a>
+</div>
+{% endif %}
 {% endblock %}

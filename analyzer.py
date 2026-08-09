@@ -1,1022 +1,262 @@
 import re
 from collections import Counter
 
-import spacy
+
+STOP_WORDS = {
+    "the", "and", "for", "with", "that", "this", "from", "are", "you",
+    "your", "our", "their", "will", "have", "has", "had", "was", "were",
+    "can", "may", "not", "all", "any", "job", "role", "work", "working",
+    "using", "use", "used", "into", "about", "who", "what", "when",
+    "where", "how", "to", "of", "in", "on", "at", "a", "an", "as",
+    "be", "is", "it", "or", "by", "we", "they", "he", "she", "i",
+    "their", "our", "must", "should", "such", "other", "more", "than",
+    "also", "including", "related", "field", "experience"
+}
 
 
-# Load NLP model
-try:
-
-    nlp = spacy.load(
-        "en_core_web_sm"
-    )
-
-except OSError:
-
-    nlp = None
-
-
-# --------------------------------------------------
-# SKILL DATABASE
-# --------------------------------------------------
-
-TECHNICAL_SKILLS = [
-
-    "python",
-    "java",
-    "javascript",
-    "typescript",
-    "html",
-    "css",
-    "react",
-    "react.js",
-    "node.js",
-    "flask",
-    "django",
-
-    "sql",
-    "mysql",
-    "postgresql",
-    "sqlite",
-
-    "mongodb",
-    "oracle",
-
-    "git",
-    "github",
-    "gitlab",
-
-    "docker",
-    "kubernetes",
-
-    "aws",
-    "azure",
-    "google cloud",
-
-    "machine learning",
-    "deep learning",
-    "artificial intelligence",
-
-    "data analysis",
-    "data science",
-
-    "numpy",
-    "pandas",
-    "matplotlib",
-
-    "c",
-    "c++",
-    "c#",
-    "php",
-
-    "spring boot",
-    "laravel",
-
-    "rest api",
-    "api",
-
-    "bootstrap",
-
-    "figma",
-
-    "power bi",
-    "excel",
-    "tableau",
-
-    "linux",
-    "windows",
-
-    "networking",
-    "tcp/ip",
-    "computer networking",
-
-    "cybersecurity",
-    "network security"
-
-]
+TECHNICAL_SKILLS = {
+    "python", "java", "javascript", "typescript", "c", "c++", "c#",
+    "html", "css", "react", "angular", "vue", "node.js", "node",
+    "flask", "django", "spring", "spring boot", "sql", "mysql",
+    "postgresql", "mongodb", "sqlite", "git", "github", "docker",
+    "aws", "azure", "linux", "windows", "rest", "api", "rest api",
+    "machine learning", "data analysis", "pandas", "numpy",
+    "tensorflow", "pytorch", "cloud", "cloud computing", "kubernetes",
+    "ci/cd", "jenkins", "oracle", "firebase", "bootstrap"
+}
 
 
-SOFT_SKILLS = [
-
-    "communication",
-    "teamwork",
-    "problem solving",
-    "leadership",
-    "time management",
-    "critical thinking",
-    "adaptability",
-    "creativity",
-    "collaboration",
-    "analytical",
-    "organization",
-    "presentation",
-    "decision making"
-
-]
+SOFT_SKILLS = {
+    "communication", "communication skills", "teamwork", "leadership",
+    "problem solving", "problem-solving", "analytical", "adaptability",
+    "time management", "collaboration", "creativity", "critical thinking",
+    "decision making", "decision-making", "team player", "organization",
+    "attention to detail"
+}
 
 
-ALL_SKILLS = (
-    TECHNICAL_SKILLS
-    + SOFT_SKILLS
-)
-
-
-# --------------------------------------------------
-# TEXT NORMALIZATION
-# --------------------------------------------------
-
-def normalize_text(text):
-
+def normalize(text):
     text = text.lower()
-
-    replacements = {
-
-        "node js": "node.js",
-
-        "nodejs": "node.js",
-
-        "react js": "react.js",
-
-        "reactjs": "react.js",
-
-        "restful api": "rest api",
-
-        "restful apis": "rest api",
-
-        "machine-learning":
-            "machine learning",
-
-        "deep-learning":
-            "deep learning",
-
-        "artificial-intelligence":
-            "artificial intelligence"
-
-    }
-
-
-    for old, new in replacements.items():
-
-        text = text.replace(
-            old,
-            new
-        )
-
-
+    text = text.replace("–", "-").replace("—", "-")
     return text
 
 
-# --------------------------------------------------
-# SKILL MATCH
-# --------------------------------------------------
+def extract_keywords(text):
+    text = normalize(text)
 
-def skill_exists(text, skill):
+    phrases = set()
 
-    text = normalize_text(text)
+    # Known technical and soft skills are kept as phrases.
+    all_known = TECHNICAL_SKILLS | SOFT_SKILLS
 
-    skill = skill.lower()
+    for skill in all_known:
+        if skill in text:
+            phrases.add(skill)
 
-    escaped_skill = re.escape(skill)
+    # Also extract useful single words from the job description.
+    words = re.findall(r"[a-zA-Z][a-zA-Z0-9+#./-]{2,}", text)
 
-    pattern = (
-        r"(?<!\w)"
-        + escaped_skill
-        + r"(?!\w)"
+    counter = Counter(
+        word.lower()
+        for word in words
+        if word.lower() not in STOP_WORDS
     )
 
-    return bool(
-        re.search(
-            pattern,
-            text
-        )
+    for word, count in counter.most_common(80):
+        if count >= 1:
+            phrases.add(word)
+
+    return phrases
+
+
+def contains_keyword(text, keyword):
+    text = normalize(text)
+    keyword = normalize(keyword)
+
+    if re.search(r"[^a-z0-9]", keyword):
+        return keyword in text
+
+    return re.search(r"\b" + re.escape(keyword) + r"\b", text) is not None
+
+
+def score_from_ratio(ratio):
+    return max(0, min(100, round(ratio * 100)))
+
+
+def analyze_resume(resume_text, job_description):
+    resume = normalize(resume_text)
+    job = normalize(job_description)
+
+    job_keywords = extract_keywords(job)
+
+    # Remove generic one-word noise.
+    job_keywords = {
+        item for item in job_keywords
+        if item not in STOP_WORDS and len(item) >= 3
+    }
+
+    matched = sorted(
+        keyword for keyword in job_keywords
+        if contains_keyword(resume, keyword)
     )
 
-
-# --------------------------------------------------
-# NLP KEYWORD EXTRACTION
-# --------------------------------------------------
-
-def extract_nlp_keywords(text):
-
-    if not nlp:
-
-        return []
-
-
-    doc = nlp(text)
-
-    keywords = []
-
-
-    for chunk in doc.noun_chunks:
-
-        phrase = chunk.text.strip().lower()
-
-        phrase = re.sub(
-            r"[^a-zA-Z0-9+#./ -]",
-            "",
-            phrase
-        )
-
-        if len(phrase) < 3:
-
-            continue
-
-
-        if phrase not in keywords:
-
-            keywords.append(
-                phrase
-            )
-
-
-    # Add important entities
-
-    for token in doc:
-
-        if token.pos_ in (
-            "NOUN",
-            "PROPN"
-        ):
-
-            word = token.text.lower()
-
-            if len(word) >= 3:
-
-                if word not in keywords:
-
-                    keywords.append(word)
-
-
-    # Frequency based keywords
-
-    words = re.findall(
-        r"\b[a-zA-Z][a-zA-Z+#.]{2,}\b",
-        text.lower()
+    missing = sorted(
+        keyword for keyword in job_keywords
+        if not contains_keyword(resume, keyword)
     )
 
-
-    frequency = Counter(words)
-
-
-    for word, count in frequency.most_common(30):
-
-        if count >= 2:
-
-            if word not in keywords:
-
-                keywords.append(word)
-
-
-    return keywords[:100]
-
-
-# --------------------------------------------------
-# EXTRACT SKILLS
-# --------------------------------------------------
-
-def extract_skills(text):
-
-    found = []
-
-    for skill in ALL_SKILLS:
-
-        if skill_exists(
-            text,
-            skill
-        ):
-
-            found.append(skill)
-
-
-    return found
-
-
-# --------------------------------------------------
-# JOB REQUIREMENTS
-# --------------------------------------------------
-
-def extract_required_skills(
-    job_description
-):
-
-    return extract_skills(
-        job_description
+    keyword_ratio = (
+        len(matched) / len(job_keywords)
+        if job_keywords else 0
     )
 
+    match_score = score_from_ratio(keyword_ratio)
 
-# --------------------------------------------------
-# SKILL ANALYSIS
-# --------------------------------------------------
+    technical_job = {
+        skill for skill in TECHNICAL_SKILLS
+        if contains_keyword(job, skill)
+    }
 
-def analyze_skills(
-    resume_text,
-    job_description
-):
-
-    required = extract_required_skills(
-        job_description
-    )
-
-
-    matched = []
-
-    missing = []
-
-
-    for skill in required:
-
-        if skill_exists(
-            resume_text,
-            skill
-        ):
-
-            matched.append(
-                skill
-            )
-
-        else:
-
-            missing.append(
-                skill
-            )
-
-
-    if required:
-
-        score = round(
-            len(matched)
-            /
-            len(required)
-            * 100
-        )
-
-    else:
-
-        score = 0
-
-
-    return (
-        score,
-        matched,
-        missing
-    )
-
-
-# --------------------------------------------------
-# CATEGORY SCORES
-# --------------------------------------------------
-
-def get_category_scores(
-    resume_text,
-    job_description
-):
-
-    technical_required = []
-
-    soft_required = []
-
-
-    for skill in TECHNICAL_SKILLS:
-
-        if skill_exists(
-            job_description,
-            skill
-        ):
-
-            technical_required.append(
-                skill
-            )
-
-
-    for skill in SOFT_SKILLS:
-
-        if skill_exists(
-            job_description,
-            skill
-        ):
-
-            soft_required.append(
-                skill
-            )
-
+    soft_job = {
+        skill for skill in SOFT_SKILLS
+        if contains_keyword(job, skill)
+    }
 
     technical_matched = [
-
-        skill
-
-        for skill in technical_required
-
-        if skill_exists(
-            resume_text,
-            skill
-        )
-
+        skill for skill in technical_job
+        if contains_keyword(resume, skill)
     ]
-
 
     soft_matched = [
-
-        skill
-
-        for skill in soft_required
-
-        if skill_exists(
-            resume_text,
-            skill
-        )
-
+        skill for skill in soft_job
+        if contains_keyword(resume, skill)
     ]
 
-
-    if technical_required:
-
-        technical_score = round(
-
-            len(technical_matched)
-            /
-            len(technical_required)
-            * 100
-
+    technical_score = (
+        score_from_ratio(
+            len(technical_matched) / len(technical_job)
         )
+        if technical_job else 100
+    )
 
-    else:
-
-        technical_score = 0
-
-
-    if soft_required:
-
-        soft_score = round(
-
-            len(soft_matched)
-            /
-            len(soft_required)
-            * 100
-
+    soft_score = (
+        score_from_ratio(
+            len(soft_matched) / len(soft_job)
         )
+        if soft_job else 100
+    )
 
-    else:
-
-        soft_score = 0
-
-
-    return {
-
-        "technical":
-            technical_score,
-
-        "soft":
-            soft_score
-
+    sections = {
+        "summary": bool(re.search(
+            r"\b(summary|profile|objective)\b", resume
+        )),
+        "skills": bool(re.search(
+            r"\b(skills|technical skills|technologies)\b", resume
+        )),
+        "education": bool(re.search(
+            r"\b(education|qualifications)\b", resume
+        )),
+        "experience": bool(re.search(
+            r"\b(experience|employment|internship)\b", resume
+        )),
+        "projects": bool(re.search(
+            r"\b(projects|academic projects|personal projects)\b", resume
+        )),
+        "certifications": bool(re.search(
+            r"\b(certifications|certificates|training)\b", resume
+        )),
     }
 
-
-# --------------------------------------------------
-# KEYWORD ANALYSIS
-# --------------------------------------------------
-
-def keyword_analysis(
-    resume_text,
-    job_description
-):
-
-    resume_keywords = set(
-        extract_nlp_keywords(
-            resume_text
-        )
+    section_score = score_from_ratio(
+        sum(sections.values()) / len(sections)
     )
 
-
-    job_keywords = set(
-        extract_nlp_keywords(
-            job_description
-        )
-    )
-
-
-    common_keywords = (
-
-        resume_keywords
-        &
-        job_keywords
-
-    )
-
-
-    missing_keywords = (
-
-        job_keywords
-        -
-        resume_keywords
-
-    )
-
-
-    return {
-
-        "resume_keywords":
-            sorted(
-                resume_keywords
-            )[:50],
-
-        "job_keywords":
-            sorted(
-                job_keywords
-            )[:50],
-
-        "common_keywords":
-            sorted(
-                common_keywords
-            )[:50],
-
-        "missing_keywords":
-            sorted(
-                missing_keywords
-            )[:50]
-
-    }
-
-
-# --------------------------------------------------
-# SECTION SCORE
-# --------------------------------------------------
-
-def calculate_section_score(
-    sections
-):
-
-    if not sections:
-
-        return 0
-
-
-    found = sum(
-        1
-        for value
-        in sections.values()
-        if value
-    )
-
-
-    return round(
-        found
-        /
-        len(sections)
-        * 100
-    )
-
-
-# --------------------------------------------------
-# ATS SCORE
-# --------------------------------------------------
-
-def calculate_ats_score(
-
-    resume_text,
-
-    job_description,
-
-    sections
-
-):
-
-    skill_score, matched, missing = (
-        analyze_skills(
-            resume_text,
-            job_description
-        )
-    )
-
-
-    section_score = calculate_section_score(
-        sections
-    )
-
-
-    keyword_data = keyword_analysis(
-
-        resume_text,
-
-        job_description
-
-    )
-
-
-    job_keywords = keyword_data[
-        "job_keywords"
-    ]
-
-
-    common_keywords = keyword_data[
-        "common_keywords"
-    ]
-
-
-    if job_keywords:
-
-        nlp_keyword_score = round(
-
-            len(common_keywords)
-            /
-            len(job_keywords)
-            * 100
-
-        )
-
-    else:
-
-        nlp_keyword_score = 0
-
+    # Basic ATS structure score.
+    contact_score = 100 if (
+        "@" in resume or
+        "linkedin" in resume or
+        "github" in resume
+    ) else 0
 
     ats_score = round(
-
-        (
-            skill_score * 0.50
-        )
-        +
-        (
-            nlp_keyword_score * 0.25
-        )
-        +
-        (
-            section_score * 0.25
-        )
-
+        technical_score * 0.35 +
+        soft_score * 0.15 +
+        section_score * 0.30 +
+        contact_score * 0.20
     )
 
+    strengths = []
 
-    return min(
-        ats_score,
-        100
-    )
-
-
-# --------------------------------------------------
-# SKILL DETAILS
-# --------------------------------------------------
-
-def get_skill_scores(
-    resume_text,
-    job_description
-):
-
-    required = extract_required_skills(
-        job_description
-    )
-
-
-    results = []
-
-
-    for skill in required:
-
-        found = skill_exists(
-            resume_text,
-            skill
+    if matched:
+        strengths.append(
+            f"{len(matched)} job-related keywords were found in the resume."
         )
 
+    if technical_score >= 70:
+        strengths.append("Good technical-skill alignment with the job description.")
 
-        results.append({
+    if soft_score >= 70:
+        strengths.append("Good soft-skill alignment.")
 
-            "skill":
-                skill,
+    if sections["projects"]:
+        strengths.append("Projects section detected.")
 
-            "score":
-                100 if found else 0,
+    if sections["experience"]:
+        strengths.append("Experience section detected.")
 
-            "matched":
-                found
-
-        })
-
-
-    return results
-
-
-# --------------------------------------------------
-# STATUS
-# --------------------------------------------------
-
-def get_score_status(
-    score
-):
-
-    if score >= 80:
-
-        return (
-
-            "Excellent Match",
-
-            "Your resume strongly matches this job."
-
-        )
-
-
-    elif score >= 60:
-
-        return (
-
-            "Good Match",
-
-            "Your resume matches many job requirements."
-
-        )
-
-
-    elif score >= 40:
-
-        return (
-
-            "Needs Improvement",
-
-            "Your resume has relevant content but can be improved."
-
-        )
-
-
-    else:
-
-        return (
-
-            "Low Match",
-
-            "Your resume needs significant improvement for this job."
-
-        )
-
-
-# --------------------------------------------------
-# SUGGESTIONS
-# --------------------------------------------------
-
-def generate_suggestions(
-
-    score,
-
-    missing_skills,
-
-    sections,
-
-    missing_keywords=None
-
-):
+    if not strengths:
+        strengths.append("The resume contains information that can be improved for this job.")
 
     suggestions = []
 
-
-    if score >= 80:
-
+    if technical_score < 70:
         suggestions.append(
-
-            "Your resume has a strong match with the job description."
-
+            "Add relevant technical skills from the job description if you genuinely have them."
         )
 
-
-    elif score >= 60:
-
+    if soft_score < 70:
         suggestions.append(
-
-            "Your resume is a good match. Add the remaining relevant keywords."
-
+            "Add relevant soft skills and demonstrate them with short examples."
         )
 
-
-    elif score >= 40:
-
+    if not sections["summary"]:
         suggestions.append(
-
-            "Customize your resume according to the job description."
-
+            "Add a concise professional summary tailored to the target role."
         )
 
-
-    else:
-
+    if not sections["projects"]:
         suggestions.append(
-
-            "Add more relevant skills, projects and experience."
-
+            "Add 2–4 relevant projects with technologies and measurable outcomes."
         )
 
-
-    if missing_skills:
-
+    if not sections["experience"]:
         suggestions.append(
-
-            "Important missing skills: "
-            +
-            ", ".join(
-                missing_skills[:15]
-            )
-
+            "Add internship, academic, freelance, or relevant practical experience."
         )
 
-
-    if missing_keywords:
-
+    if not sections["certifications"]:
         suggestions.append(
-
-            "Consider reviewing these job-description keywords: "
-            +
-            ", ".join(
-                missing_keywords[:10]
-            )
-
+            "Consider adding relevant certifications or completed training."
         )
 
-
-    if not sections.get(
-        "summary",
-        False
-    ):
-
+    if missing:
         suggestions.append(
-
-            "Add a professional summary."
-
+            "Review the missing keywords and add only those that accurately describe your skills."
         )
 
-
-    if not sections.get(
-        "skills",
-        False
-    ):
-
-        suggestions.append(
-
-            "Add a dedicated Technical Skills section."
-
-        )
-
-
-    if not sections.get(
-        "education",
-        False
-    ):
-
-        suggestions.append(
-
-            "Add your education qualifications."
-
-        )
-
-
-    if not sections.get(
-        "experience",
-        False
-    ):
-
-        suggestions.append(
-
-            "Add internship or relevant experience."
-
-        )
-
-
-    if not sections.get(
-        "projects",
-        False
-    ):
-
-        suggestions.append(
-
-            "Add 2–3 relevant projects with technologies used."
-
-        )
-
-
-    if not sections.get(
-        "certifications",
-        False
-    ):
-
-        suggestions.append(
-
-            "Add relevant certifications or courses."
-
-        )
-
-
-    return suggestions
-
-
-# --------------------------------------------------
-# COMPLETE ANALYSIS
-# --------------------------------------------------
-
-def analyze_resume(
-
-    resume_text,
-
-    job_description,
-
-    sections
-
-):
-
-    match_score, matched, missing = (
-        analyze_skills(
-
-            resume_text,
-
-            job_description
-
-        )
+    recommended_skills = sorted(
+        (technical_job | soft_job) - set(matched)
     )
-
-
-    ats_score = calculate_ats_score(
-
-        resume_text,
-
-        job_description,
-
-        sections
-
-    )
-
-
-    category_scores = get_category_scores(
-
-        resume_text,
-
-        job_description
-
-    )
-
-
-    keyword_data = keyword_analysis(
-
-        resume_text,
-
-        job_description
-
-    )
-
-
-    suggestions = generate_suggestions(
-
-        match_score,
-
-        missing,
-
-        sections,
-
-        keyword_data[
-            "missing_keywords"
-        ]
-
-    )
-
-
-    status, status_message = (
-        get_score_status(
-            match_score
-        )
-    )
-
-
-    skill_scores = get_skill_scores(
-
-        resume_text,
-
-        job_description
-
-    )
-
 
     return {
-
-        "match_score":
-            match_score,
-
-        "ats_score":
-            ats_score,
-
-        "matched":
-            matched,
-
-        "missing":
-            missing,
-
-        "status":
-            status,
-
-        "status_message":
-            status_message,
-
-        "suggestions":
-            suggestions,
-
-        "skill_scores":
-            skill_scores,
-
-        "category_scores":
-            category_scores,
-
-        "keyword_data":
-            keyword_data
-
+        "match_score": match_score,
+        "ats_score": ats_score,
+        "technical_score": technical_score,
+        "soft_score": soft_score,
+        "matched_keywords": matched[:40],
+        "missing_keywords": missing[:60],
+        "strengths": strengths,
+        "suggestions": suggestions,
+        "recommended_skills": recommended_skills[:30],
+        "sections": sections,
     }

@@ -1,58 +1,40 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>
-        {% block title %}
-        AI Resume Analyzer
-        {% endblock %}
-    </title>
-
+    <title>{% block title %}AI Resume Analyzer{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
 </head>
-
-
 <body>
+<header class="navbar">
+    <div class="container nav-inner">
+        <a class="brand" href="{{ url_for('home') }}">AI Resume Analyzer</a>
+        <nav>
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('history') }}">History</a>
+        </nav>
+    </div>
+</header>
 
+<main class="container">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-area">
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
-    <nav>
+    {% block content %}{% endblock %}
+</main>
 
-        <div class="logo">
-            AI Resume Analyzer
-        </div>
-
-
-        <div class="nav-links">
-
-            <a href="/">
-                Home
-            </a>
-
-            <a href="/dashboard">
-                Dashboard
-            </a>
-
-            <a href="/history">
-                History
-            </a>
-
-        </div>
-
-    </nav>
-
-
-    {% block content %}
-
-    {% endblock %}
-
-
+<footer>
+    <div class="container">
+        AI Resume Analyzer • Python + Flask + SQLite
+    </div>
+</footer>
 </body>
-
 </html>

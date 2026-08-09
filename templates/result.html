@@ -1,522 +1,139 @@
 {% extends "base.html" %}
-
-
-{% block title %}
-Analysis Result
-{% endblock %}
-
+{% block title %}Analysis Result{% endblock %}
 
 {% block content %}
-
-
-<div class="container">
-
-
-    <div class="page-header">
-
-        <div class="small-label">
-            AI + NLP ANALYSIS
-        </div>
-
-        <h1>
-            Resume Analysis
-        </h1>
-
-        <p>
-            {{ filename }}
-        </p>
-
-    </div>
-
-
-    <div class="score-grid">
-
-
-        <div class="score-card">
-
-
-            <div class="score-circle">
-
-                <span>
-                    {{ score }}%
-                </span>
-
-            </div>
-
-
-            <div class="score-content">
-
-                <div class="small-label">
-                    JOB MATCH
-                </div>
-
-                <h2>
-                    {{ status }}
-                </h2>
-
-                <p>
-                    {{ status_message }}
-                </p>
-
-
-                <div class="progress">
-
-                    <div class="progress-bar" style="width: {{ score }}%;"></div>
-
-                </div>
-
-            </div>
-
-
-        </div>
-
-
-        <div class="ats-card">
-
-            <div class="small-label">
-                ATS SCORE
-            </div>
-
-            <div class="ats-score">
-                {{ ats_score }}%
-            </div>
-
-            <p>
-                NLP keyword + skill +
-                resume structure analysis.
-            </p>
-
-        </div>
-
-
-    </div>
-
-
-    <div class="category-grid">
-
-
-        <div class="category-card">
-
-            <div class="category-header">
-
-                <span>
-                    💻 Technical Skills
-                </span>
-
-                <strong>
-                    {{ category_scores["technical"] }}%
-                </strong>
-
-            </div>
-
-
-            <div class="progress">
-
-                <div class="progress-bar" style="
-                    width:
-                    {{ category_scores['technical'] }}%;
-                    "></div>
-
-            </div>
-
-        </div>
-
-
-        <div class="category-card">
-
-            <div class="category-header">
-
-                <span>
-                    🤝 Soft Skills
-                </span>
-
-                <strong>
-                    {{ category_scores["soft"] }}%
-                </strong>
-
-            </div>
-
-
-            <div class="progress">
-
-                <div class="progress-bar purple" style="
-                    width:
-                    {{ category_scores['soft'] }}%;
-                    "></div>
-
-            </div>
-
-        </div>
-
-
-    </div>
-
-
-    <div class="result-card">
-
-
-        <h2>
-            🧠 NLP Keyword Analysis
-        </h2>
-
-
-        <p>
-            Keywords found in both the resume
-            and job description:
-        </p>
-
-
-        <div class="skill-list">
-
-
-            {% for keyword in keyword_data["common_keywords"] %}
-
-
-            <span class="skill matched">
-
-                ✓ {{ keyword }}
-
-            </span>
-
-
-            {% endfor %}
-
-
-        </div>
-
-
-        {% if keyword_data["missing_keywords"] %}
-
-
-        <h3 class="keyword-title">
-
-            Potential Missing Keywords
-
-        </h3>
-
-
-        <div class="skill-list">
-
-
-            {% for keyword in keyword_data["missing_keywords"][:20] %}
-
-
-            <span class="skill missing">
-
-                ! {{ keyword }}
-
-            </span>
-
-
-            {% endfor %}
-
-
-        </div>
-
-
-        {% endif %}
-
-
-    </div>
-
-
-    <div class="result-card">
-
-
-        <h2>
-            📊 Skill Analysis
-        </h2>
-
-
-        {% for item in skill_scores %}
-
-
-        <div class="skill-row">
-
-
-            <div class="skill-name">
-
-
-                {% if item["matched"] %}
-
-                <span class="check">
-                    ✓
-                </span>
-
-                {% else %}
-
-                <span class="cross">
-                    !
-                </span>
-
-                {% endif %}
-
-
-                {{ item["skill"] }}
-
-
-            </div>
-
-
-            <div class="skill-progress">
-
-                <div class="mini-progress">
-
-                    <div class="
-                        mini-progress-bar
-                        {% if item['matched'] %}
-                        matched-bar
-                        {% else %}
-                        missing-bar
-                        {% endif %}
-                        " style="
-                        width:
-                        {{ item['score'] }}%;
-                        "></div>
-
-                </div>
-
-            </div>
-
-
-            <div class="skill-score">
-
-                {{ item["score"] }}%
-
-            </div>
-
-
-        </div>
-
-
-        {% else %}
-
-
-        <p class="muted">
-
-            No recognized skills were
-            detected in the job description.
-
-        </p>
-
-
-        {% endfor %}
-
-
-    </div>
-
-
-    <div class="two-column">
-
-
-        <div class="result-card">
-
-            <h2>
-
-                <span class="success-icon">
-                    ✓
-                </span>
-
-                Matched Skills
-
-            </h2>
-
-
-            <div class="skill-list">
-
-
-                {% for skill in matched %}
-
-
-                <span class="skill matched">
-
-                    ✓ {{ skill }}
-
-                </span>
-
-
-                {% else %}
-
-
-                <p>
-                    No matching skills found.
-                </p>
-
-
-                {% endfor %}
-
-
-            </div>
-
-        </div>
-
-
-        <div class="result-card">
-
-            <h2>
-
-                <span class="warning-icon">
-                    !
-                </span>
-
-                Missing Skills
-
-            </h2>
-
-
-            <div class="skill-list">
-
-
-                {% for skill in missing %}
-
-
-                <span class="skill missing">
-
-                    ! {{ skill }}
-
-                </span>
-
-
-                {% else %}
-
-
-                <p>
-                    No major missing skills detected.
-                </p>
-
-
-                {% endfor %}
-
-
-            </div>
-
-        </div>
-
-
-    </div>
-
-
-    <div class="result-card">
-
-        <h2>
-            Resume Sections
-        </h2>
-
-
-        <div class="section-grid">
-
-
-            {% for section, exists in sections.items() %}
-
-
-            <div class="
-                section-item
-
-                {% if exists %}
-
-                section-found
-
-                {% else %}
-
-                section-missing
-
-                {% endif %}
-
-                ">
-
-                <span>
-
-                    {% if exists %}
-                    ✓
-                    {% else %}
-                    !
-                    {% endif %}
-
-                </span>
-
-
-                {{ section
-                |replace("_", " ")
-                |title }}
-
-
-            </div>
-
-
-            {% endfor %}
-
-
-        </div>
-
-
-    </div>
-
-
-    <div class="result-card">
-
-
-        <h2>
-            💡 Improvement Suggestions
-        </h2>
-
-
-        {% for suggestion in suggestions %}
-
-
-        <div class="suggestion">
-
-            <span>
-                →
-            </span>
-
-            <p>
-                {{ suggestion }}
-            </p>
-
-        </div>
-
-
-        {% endfor %}
-
-
-    </div>
-
-
-    <div class="actions">
-
-
-        <a href="/" class="button primary">
-
-            Analyze Another
-
-        </a>
-
-
-        <a href="/dashboard" class="button secondary">
-
-            Dashboard
-
-        </a>
-
-
-        <a href="/history" class="button secondary">
-
-            History
-
-        </a>
-
-
-        <a href="/download/{{ report_filename }}" class="button download">
-
-            Download PDF Report
-
-        </a>
-
-
-    </div>
-
-
+<div class="page-heading">
+    <span class="eyebrow">ANALYSIS RESULT</span>
+    <h1>Resume Analysis</h1>
+    <p>File: {{ filename }}</p>
 </div>
 
+<section class="top-grid">
+    <div class="score-card card">
+        <span>JOB MATCH</span>
+        <div class="big-score">{{ result.match_score }}%</div>
+        <h2>
+            {% if result.match_score >= 75 %}
+                Strong Match
+            {% elif result.match_score >= 50 %}
+                Moderate Match
+            {% else %}
+                Low Match
+            {% endif %}
+        </h2>
+        <p>Keyword alignment between your resume and the job description.</p>
+        <div class="progress">
+            <div style="width: {{ result.match_score }}%"></div>
+        </div>
+    </div>
 
+    <div class="score-card card">
+        <span>ATS SCORE</span>
+        <div class="big-score">{{ result.ats_score }}%</div>
+        <h2>ATS Compatibility</h2>
+        <p>Structure + skills + contact information analysis.</p>
+        <div class="progress">
+            <div style="width: {{ result.ats_score }}%"></div>
+        </div>
+    </div>
+</section>
+
+<section class="metric-grid">
+    <div class="metric card">
+        <div>
+            <h3>💻 Technical Skills</h3>
+            <div class="progress">
+                <div style="width: {{ result.technical_score }}%"></div>
+            </div>
+        </div>
+        <strong>{{ result.technical_score }}%</strong>
+    </div>
+
+    <div class="metric card">
+        <div>
+            <h3>🤝 Soft Skills</h3>
+            <div class="progress purple">
+                <div style="width: {{ result.soft_score }}%"></div>
+            </div>
+        </div>
+        <strong>{{ result.soft_score }}%</strong>
+    </div>
+</section>
+
+<section class="card">
+    <h2>🧠 NLP Keyword Analysis</h2>
+
+    <h3>Keywords found in both resume and job description</h3>
+
+    <div class="tags">
+        {% for keyword in result.matched_keywords %}
+            <span class="tag success">✓ {{ keyword }}</span>
+        {% else %}
+            <span class="muted">No matching keywords found.</span>
+        {% endfor %}
+    </div>
+
+    <h3>Potential Missing Keywords</h3>
+
+    <div class="tags">
+        {% for keyword in result.missing_keywords %}
+            <span class="tag danger">! {{ keyword }}</span>
+        {% else %}
+            <span class="muted">No major missing keywords detected.</span>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="two-column">
+    <div class="card">
+        <h2>💪 Resume Strengths</h2>
+        <ul class="clean-list">
+            {% for item in result.strengths %}
+                <li>✓ {{ item }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>💡 Improvement Suggestions</h2>
+        <ul class="clean-list">
+            {% for item in result.suggestions %}
+                <li>→ {{ item }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+
+<section class="card">
+    <h2>🚀 Recommended Skills</h2>
+    <p>Skills appearing in the job description but not detected in the resume:</p>
+
+    <div class="tags">
+        {% for skill in result.recommended_skills %}
+            <span class="tag warning">{{ skill }}</span>
+        {% else %}
+            <span class="muted">No additional skills detected.</span>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="card">
+    <h2>📄 Resume Section Analysis</h2>
+
+    <div class="section-grid">
+        {% for name, present in result.sections.items() %}
+            <div class="section-status {% if present %}present{% else %}missing{% endif %}">
+                <span>{{ name|title }}</span>
+                <strong>
+                    {% if present %}✓ Found{% else %}! Missing{% endif %}
+                </strong>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<div class="actions">
+    <a class="btn primary" href="{{ url_for('home') }}">Analyze Another Resume</a>
+    <a class="btn secondary" href="{{ url_for('history') }}">View History</a>
+</div>
 {% endblock %}

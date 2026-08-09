@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Home - AI Resume Analyzer{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <span class="eyebrow">SMART RESUME ANALYSIS</span>
+        <h1>Analyze your resume against a job description.</h1>
+        <p>
+            Upload your PDF resume, paste a job description, and get
+            job-match, ATS, technical-skill, soft-skill and keyword analysis.
+        </p>
+    </div>
+</section>
+
+<section class="card form-card">
+    <form action="{{ url_for('analyze') }}" method="POST" enctype="multipart/form-data">
+
+        <div class="form-group">
+            <label for="resume">Upload Resume</label>
+            <input id="resume" type="file" name="resume" accept=".pdf" required>
+            <small>PDF only • Maximum 10 MB</small>
+        </div>
+
+        <div class="form-group">
+            <label for="job_description">Job Description</label>
+            <textarea
+                id="job_description"
+                name="job_description"
+                rows="12"
+                placeholder="Paste the complete job description here..."
+                required
+            ></textarea>
+        </div>
+
+        <button class="btn primary" type="submit">
+            Analyze Resume
+        </button>
+    </form>
+</section>
+
+<section class="features">
+    <div class="feature card">
+        <h3>🎯 Job Match</h3>
+        <p>Compare important job-description keywords with your resume.</p>
+    </div>
+
+    <div class="feature card">
+        <h3>📊 ATS Score</h3>
+        <p>Check resume structure, contact details and skill alignment.</p>
+    </div>
+
+    <div class="feature card">
+        <h3>💡 Suggestions</h3>
+        <p>Get practical suggestions for improving your resume.</p>
+    </div>
+</section>
+{% endblock %}
